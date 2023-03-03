@@ -12,11 +12,13 @@ class Game {
     constructor(canvas) {
         this.scene = new Scene(canvas)
         this.path = new Path()
-        this.stateManager = new StateManager(this.path);
         this.anchorCouplings = []
         this.activeAnchorCoupling = null
+        this.stateManager = StateManager
+        StateManager.setPath(this.path);
+        this.rasterizationResolution = 10
 
-        this.init(this.stateManager.currentAnchors)
+        this.init(StateManager.currentAnchors)
     }
 
     init(anchors) {
@@ -27,17 +29,12 @@ class Game {
     }
 
     addAnchorCoupling(anchor) {
-        const controlPoints = anchor.controlPoints()
-        const controlPointsNextAnchor = anchor.nextAnchor.controlPoints()
-
         const anchorCoupling = new AnchorCoupling()
 
         anchorCoupling.anchor = anchor
 
         // add anchor circle
         anchorCoupling.anchorShape = new Circle({
-            x: anchor.position.x,
-            y: anchor.position.y,
             radius: 10,
             fillColor: "red",
             zIndex: 22
@@ -45,33 +42,21 @@ class Game {
 
         // add control point circles and lines
         anchorCoupling.controlPoint1Shape = new Circle({
-            x: controlPoints[0].x,
-            y: controlPoints[0].y,
             radius: 10,
             fillColor: "grey",
             zIndex: 21
         }).addToScene(this.scene)
         anchorCoupling.controlPoint2Shape = new Circle({
-            x: controlPoints[1].x,
-            y: controlPoints[1].y,
             radius: 10,
             fillColor: "grey",
             zIndex: 21
         }).addToScene(this.scene)
         anchorCoupling.controlPointLineShape1 = new Line({
-            x1: anchor.position.x,
-            y1: anchor.position.y,
-            x2: controlPoints[0].x,
-            y2: controlPoints[0].y,
             strokeColor: 'lightgrey',
             strokeWidth: 1,
             zIndex: 20
         }).addToScene(this.scene)
         anchorCoupling.controlPointLineShape2 = new Line({
-            x1: anchor.position.x,
-            y1: anchor.position.y,
-            x2: controlPoints[1].x,
-            y2: controlPoints[1].y,
             strokeColor: 'lightgrey',
             strokeWidth: 1,
             zIndex: 20
@@ -79,48 +64,33 @@ class Game {
 
         // add track curves
         anchorCoupling.trackShape1 = new BezierCurve({
-            x1: anchor.position.x,
-            y1: anchor.position.y,
-            x2: controlPoints[1].x,
-            y2: controlPoints[1].y,
-            x3: controlPointsNextAnchor[0].x,
-            y3: controlPointsNextAnchor[0].y,
-            x4: anchor.nextAnchor.position.x,
-            y4: anchor.nextAnchor.position.y,
             strokeColor: 'black',
             strokeWidth: 50,
             zIndex: 10
         }).addToScene(this.scene)
 
         anchorCoupling.trackShape2 = new BezierCurve({
-            x1: anchor.position.x,
-            y1: anchor.position.y,
-            x2: controlPoints[1].x,
-            y2: controlPoints[1].y,
-            x3: controlPointsNextAnchor[0].x,
-            y3: controlPointsNextAnchor[0].y,
-            x4: anchor.nextAnchor.position.x,
-            y4: anchor.nextAnchor.position.y,
             strokeColor: 'white',
             strokeWidth: 46,
             zIndex: 11
         }).addToScene(this.scene)
 
         anchorCoupling.trackShape3 = new BezierCurve({
-            x1: anchor.position.x,
-            y1: anchor.position.y,
-            x2: controlPoints[1].x,
-            y2: controlPoints[1].y,
-            x3: controlPointsNextAnchor[0].x,
-            y3: controlPointsNextAnchor[0].y,
-            x4: anchor.nextAnchor.position.x,
-            y4: anchor.nextAnchor.position.y,
             strokeColor: 'lightgrey',
             strokeWidth: 1,
             zIndex: 12
         }).addToScene(this.scene)
 
+        for (let i = 0; i < this.rasterizationResolution; i++) {
+            anchorCoupling.rasterizedLineSegments.push(new Line({
+                strokeColor: 'blue',
+                strokeWidth: 2,
+                zIndex: 15
+            }).addToScene(this.scene))
+        }
+
         this.anchorCouplings.push(anchorCoupling)
+
 
         // add click event listener to anchor circles
         this.scene.addEventListener("click", anchorCoupling.anchorShape, e => {
@@ -157,19 +127,21 @@ class Game {
 
         this.scene.addEventListener("drag", anchorCoupling.anchorShape, (e, offset) => {
             anchorCoupling.anchor.position = Vector2D.add(anchorCoupling.anchor.position, offset)
+            this.path.calculataAnchorControlPoints()
             this.synchronize()
             this.scene.render()
         })
 
-        //
+        this.synchronize()
     }
 
     synchronize() {
         this.anchorCouplings.forEach(anchorCoupling => {
             const anchor = anchorCoupling.anchor
 
-            const controlPoints = anchor.controlPoints()
-            const controlPointsNextAnchor = anchor.nextAnchor.controlPoints()
+            const controlPoints = anchor.controlPoints
+            const controlPointsNextAnchor = anchor.nextAnchor.controlPoints
+            const rasterizedPathSegment = this.path.getRasterizedPathSegment(anchor, this.rasterizationResolution)
 
             anchorCoupling.anchorShape.x = anchor.position.x
             anchorCoupling.anchorShape.y = anchor.position.y
@@ -216,12 +188,15 @@ class Game {
             anchorCoupling.trackShape3.y3 = controlPointsNextAnchor[0].y
             anchorCoupling.trackShape3.x4 = anchor.nextAnchor.position.x
             anchorCoupling.trackShape3.y4 = anchor.nextAnchor.position.y
+            
+            for (let i = 0; i < rasterizedPathSegment.length - 1; i++) {
+                anchorCoupling.rasterizedLineSegments[i].x1 = rasterizedPathSegment[i].x
+                anchorCoupling.rasterizedLineSegments[i].y1 = rasterizedPathSegment[i].y
+                anchorCoupling.rasterizedLineSegments[i].x2 = rasterizedPathSegment[i+1].x
+                anchorCoupling.rasterizedLineSegments[i].y2 = rasterizedPathSegment[i+1].y
+            }
         })
     }
-
-    /*moveAnchor(anchor, vector) {
-        const anchorCoupling = this.anchorCouplings.find(anchorCoupling => anchorCoupling.anchor == anchor)
-    }*/
 }
 
 export { Game }

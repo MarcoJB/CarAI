@@ -1,4 +1,5 @@
 import { Vector2D } from "../../Vector/Vector2D.js"
+import { Line } from "./Line.js"
 import { Shape } from "./Shape.js"
 
 class BezierCurve extends Shape {

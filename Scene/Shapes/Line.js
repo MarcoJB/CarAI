@@ -10,13 +10,6 @@ class Line extends Shape {
         this.y2 = config.y2 || 0
     }
 
-    move(vector) {
-        this.x1 += vector.x1
-        this.y1 += vector.y1
-        this.x2 += vector.x2
-        this.y2 += vector.y2
-    }
-
     render(context) {
         context.beginPath();
         context.moveTo(this.x1, this.y1);

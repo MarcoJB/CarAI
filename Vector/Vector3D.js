@@ -32,6 +32,7 @@ class Vector3D {
     static ex = new Vector3D(1, 0, 0)
     static ey = new Vector3D(0, 1, 0)
     static ez = new Vector3D(0, 0, 1)
+    static zero = new Vector3D(0, 0, 0)
 
     static add(vector1, vector2) {
         return new Vector3D(
