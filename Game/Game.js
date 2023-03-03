@@ -5,26 +5,23 @@ import { Line } from "../Scene/Shapes/Line.js"
 import { BezierCurve } from "../Scene/Shapes/BezierCurve.js"
 import { AnchorCoupling } from "./Couplings/AnchorCoupling.js"
 import { Anchor } from "../Path/Anchor.js"
+import { StateManager } from "./StateManager.js"
+import { Vector2D } from "../Vector/Vector2D.js"
 
 class Game {
     constructor(canvas) {
         this.scene = new Scene(canvas)
         this.path = new Path()
+        this.stateManager = new StateManager(this.path);
         this.anchorCouplings = []
         this.activeAnchorCoupling = null
 
-        this.init()
+        this.init(this.stateManager.currentAnchors)
     }
 
-    init() {
-        const startAnchors = [
-            new Anchor(500, 150),
-            new Anchor(700, 450),
-            new Anchor(300, 450)
-        ]
-
-        startAnchors.forEach(anchor => this.path.addAnchor(anchor))
-        startAnchors.forEach(anchor => this.addAnchorCoupling(anchor))
+    init(anchors) {
+        anchors.forEach(anchor => this.path.addAnchor(anchor))
+        anchors.forEach(anchor => this.addAnchorCoupling(anchor))
 
         this.scene.render()
     }
@@ -39,99 +36,99 @@ class Game {
 
         // add anchor circle
         anchorCoupling.anchorShape = new Circle({
-            x: anchor.position.x, 
-            y: anchor.position.y, 
-            radius: 10, 
-            fillColor: "red", 
+            x: anchor.position.x,
+            y: anchor.position.y,
+            radius: 10,
+            fillColor: "red",
             zIndex: 22
         }).addToScene(this.scene)
 
         // add control point circles and lines
         anchorCoupling.controlPoint1Shape = new Circle({
-            x: controlPoints[0].x, 
-            y: controlPoints[0].y, 
-            radius: 10, 
-            fillColor: "grey", 
+            x: controlPoints[0].x,
+            y: controlPoints[0].y,
+            radius: 10,
+            fillColor: "grey",
             zIndex: 21
         }).addToScene(this.scene)
         anchorCoupling.controlPoint2Shape = new Circle({
-            x: controlPoints[1].x, 
-            y: controlPoints[1].y, 
-            radius: 10, 
-            fillColor: "grey", 
+            x: controlPoints[1].x,
+            y: controlPoints[1].y,
+            radius: 10,
+            fillColor: "grey",
             zIndex: 21
         }).addToScene(this.scene)
         anchorCoupling.controlPointLineShape1 = new Line({
-            x1: anchor.position.x, 
-            y1: anchor.position.y, 
-            x2: controlPoints[0].x, 
-            y2: controlPoints[0].y, 
-            strokeColor: 'lightgrey', 
-            strokeWidth: 1, 
+            x1: anchor.position.x,
+            y1: anchor.position.y,
+            x2: controlPoints[0].x,
+            y2: controlPoints[0].y,
+            strokeColor: 'lightgrey',
+            strokeWidth: 1,
             zIndex: 20
         }).addToScene(this.scene)
         anchorCoupling.controlPointLineShape2 = new Line({
-            x1: anchor.position.x, 
-            y1: anchor.position.y, 
-            x2: controlPoints[1].x, 
-            y2: controlPoints[1].y, 
-            strokeColor: 'lightgrey', 
-            strokeWidth: 1, 
+            x1: anchor.position.x,
+            y1: anchor.position.y,
+            x2: controlPoints[1].x,
+            y2: controlPoints[1].y,
+            strokeColor: 'lightgrey',
+            strokeWidth: 1,
             zIndex: 20
         }).addToScene(this.scene)
 
         // add track curves
         anchorCoupling.trackShape1 = new BezierCurve({
-            x1: anchor.position.x, 
-            y1: anchor.position.y, 
-            x2: controlPoints[1].x, 
+            x1: anchor.position.x,
+            y1: anchor.position.y,
+            x2: controlPoints[1].x,
             y2: controlPoints[1].y,
-            x3: controlPointsNextAnchor[0].x, 
+            x3: controlPointsNextAnchor[0].x,
             y3: controlPointsNextAnchor[0].y,
-            x4: anchor.nextAnchor.position.x, 
+            x4: anchor.nextAnchor.position.x,
             y4: anchor.nextAnchor.position.y,
-            strokeColor: 'black', 
-            strokeWidth: 50, 
+            strokeColor: 'black',
+            strokeWidth: 50,
             zIndex: 10
         }).addToScene(this.scene)
 
         anchorCoupling.trackShape2 = new BezierCurve({
-            x1: anchor.position.x, 
-            y1: anchor.position.y, 
-            x2: controlPoints[1].x, 
+            x1: anchor.position.x,
+            y1: anchor.position.y,
+            x2: controlPoints[1].x,
             y2: controlPoints[1].y,
-            x3: controlPointsNextAnchor[0].x, 
+            x3: controlPointsNextAnchor[0].x,
             y3: controlPointsNextAnchor[0].y,
-            x4: anchor.nextAnchor.position.x, 
+            x4: anchor.nextAnchor.position.x,
             y4: anchor.nextAnchor.position.y,
-            strokeColor: 'white', 
-            strokeWidth: 46, 
+            strokeColor: 'white',
+            strokeWidth: 46,
             zIndex: 11
         }).addToScene(this.scene)
 
         anchorCoupling.trackShape3 = new BezierCurve({
-            x1: anchor.position.x, 
-            y1: anchor.position.y, 
-            x2: controlPoints[1].x, 
+            x1: anchor.position.x,
+            y1: anchor.position.y,
+            x2: controlPoints[1].x,
             y2: controlPoints[1].y,
-            x3: controlPointsNextAnchor[0].x, 
+            x3: controlPointsNextAnchor[0].x,
             y3: controlPointsNextAnchor[0].y,
-            x4: anchor.nextAnchor.position.x, 
+            x4: anchor.nextAnchor.position.x,
             y4: anchor.nextAnchor.position.y,
-            strokeColor: 'lightgrey', 
-            strokeWidth: 1, 
+            strokeColor: 'lightgrey',
+            strokeWidth: 1,
             zIndex: 12
         }).addToScene(this.scene)
 
         this.anchorCouplings.push(anchorCoupling)
-        
+
         // add click event listener to anchor circles
         this.scene.addEventListener("click", anchorCoupling.anchorShape, e => {
             this.activeAnchorCoupling?.anchorShape.setFillColor("red")
             anchorCoupling.anchorShape.setFillColor("lime")
             this.activeAnchorCoupling = anchorCoupling
             this.scene.render()
-        }, {shiftKey: false})
+        }, { shiftKey: false })
 
         // add click event listener to track
         this.scene.addEventListener("click", anchorCoupling.trackShape1, e => {
@@ -140,7 +137,7 @@ class Game {
             this.addAnchorCoupling(newAnchor)
             this.synchronize()
             this.scene.render()
-        }, {shiftKey: true})
+        }, { shiftKey: true })
 
         // add right click event listener to anchor circles
         this.scene.addEventListener("contextmenu", anchorCoupling.anchorShape, e => {
@@ -157,6 +154,14 @@ class Game {
                 this.scene.removeShape(anchorCoupling.trackShape3)
             }
         })
+
+        this.scene.addEventListener("drag", anchorCoupling.anchorShape, (e, offset) => {
+            anchorCoupling.anchor.position = Vector2D.add(anchorCoupling.anchor.position, offset)
+            this.synchronize()
+            this.scene.render()
+        })
+
+        //
     }
 
     synchronize() {
@@ -165,7 +170,7 @@ class Game {
 
             const controlPoints = anchor.controlPoints()
             const controlPointsNextAnchor = anchor.nextAnchor.controlPoints()
-            
+
             anchorCoupling.anchorShape.x = anchor.position.x
             anchorCoupling.anchorShape.y = anchor.position.y
 
@@ -219,4 +224,4 @@ class Game {
     }*/
 }
 
-export {Game}
+export { Game }

@@ -1,5 +1,6 @@
 import { EventHandlerClick } from "./EventHandlers/EventHandlerClick.js"
 import { EventHandlerContextmenu } from "./EventHandlers/EventHandlerContextmenu.js"
+import { EventHandlerDrag } from "./EventHandlers/EventHandlerDrag.js"
 
 class Scene {
     constructor(canvas) {
@@ -10,6 +11,7 @@ class Scene {
 
         this.eventHandlers["click"] = new EventHandlerClick(this.canvas)
         this.eventHandlers["contextmenu"] = new EventHandlerContextmenu(this.canvas)
+        this.eventHandlers["drag"] = new EventHandlerDrag(this.canvas)
 
         this.canvas.addEventListener("contextmenu", (e) => e.preventDefault())
     }
@@ -46,6 +48,10 @@ class Scene {
         } else {
             this.eventHandlers[event].registerShape(shape, callback, options)
         }
+    }
+
+    makeShapeDraggable(shape) {
+
     }
 }
 
