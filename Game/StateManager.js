@@ -7,12 +7,14 @@ export class StateManager {
     static startAnchors = [[500, 150], [700, 450], [300, 450]]
 
     static setPath(path) {
-        StateManager.path = path;
+        StateManager.path = path
         StateManager.loadState()
     }
 
     static transformAnchors() {
-        return StateManager.path.anchors.map(anchor => [anchor.position.x, anchor.position.y])
+        return StateManager.path.anchors.map(
+            anchor => [anchor.position.x, anchor.position.y, anchor.width]
+        )
     }
 
     static saveState() {
@@ -31,7 +33,9 @@ export class StateManager {
                 if (returnState) {
                     return gameState
                 }
-                StateManager.currentAnchors = gameState.anchors.map(anchor => new Anchor(anchor[0], anchor[1]));
+                StateManager.currentAnchors = gameState.anchors.map(
+                    anchor => new Anchor(anchor[0], anchor[1], anchor[2])
+                )
                 console.log(`Loaded this data: ${localStorageData}`)
             } catch (error) {
                 console.error(`Game state corrupted - cannot parse ${localStorageData}`)
@@ -39,7 +43,9 @@ export class StateManager {
         }
 
         if (!StateManager.currentAnchors) {
-            StateManager.currentAnchors = StateManager.startAnchors.map(anchor => new Anchor(anchor[0], anchor[1]));
+            StateManager.currentAnchors = StateManager.startAnchors.map(
+                anchor => new Anchor(anchor[0], anchor[1])
+            )
         }
     }
 

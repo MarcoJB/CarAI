@@ -1,4 +1,5 @@
 import { EventHandlerClick } from "./EventHandlers/EventHandlerClick.js"
+import { EventHandlerMouseDown } from "./EventHandlers/EventHandlerMouseDown.js"
 import { EventHandlerContextmenu } from "./EventHandlers/EventHandlerContextmenu.js"
 import { EventHandlerDrag } from "./EventHandlers/EventHandlerDrag.js"
 
@@ -10,6 +11,7 @@ class Scene {
         this.eventHandlers = {}
 
         this.eventHandlers["click"] = new EventHandlerClick(this.canvas)
+        this.eventHandlers["mousedown"] = new EventHandlerMouseDown(this.canvas)
         this.eventHandlers["contextmenu"] = new EventHandlerContextmenu(this.canvas)
         this.eventHandlers["drag"] = new EventHandlerDrag(this.canvas)
 
@@ -24,7 +26,7 @@ class Scene {
         this.shapes.splice(this.shapes.indexOf(shape), 1)
     }
 
-    clear() {
+    reset() {
         this.shapes = []
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
         for (let event in this.eventHandlers) this.eventHandlers[event].deregisterAllShapes()

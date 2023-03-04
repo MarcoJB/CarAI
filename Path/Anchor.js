@@ -2,9 +2,9 @@ import { Vector2D } from "../Vector/Vector2D.js"
 import { Vector3D } from "../Vector/Vector3D.js"
 
 class Anchor {
-    constructor(x, y) {
+    constructor(x, y, width=50) {
         this.position = new Vector2D(x, y)
-        this.width = 50
+        this.width = width
         this.controlPoints = [Vector2D.zero, Vector2D.zero]
         this.previousAnchor = null
         this.nextAnchor = null

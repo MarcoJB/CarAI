@@ -16,14 +16,27 @@ class Game {
         this.activeAnchorCoupling = null
         this.stateManager = StateManager
         StateManager.setPath(this.path);
-        this.linearizationResolution = 10
+        this.linearizationResolution = 20
 
         this.init(StateManager.currentAnchors)
     }
 
     init(anchors) {
-        anchors.forEach(anchor => this.path.addAnchor(anchor))
+        this.path.anchors = anchors
+        this.path.update()
+
         anchors.forEach(anchor => this.addAnchorCoupling(anchor))
+        this.setActiveAnchorCoupling(this.anchorCouplings[0])
+
+        this.scene.render()
+    }
+
+    redraw() {
+        this.scene.reset()
+
+        this.anchorCouplings = []
+        this.path.anchors.forEach(anchor => this.addAnchorCoupling(anchor))
+        this.setActiveAnchorCoupling(this.anchorCouplings[0])
 
         this.scene.render()
     }
@@ -98,24 +111,22 @@ class Game {
 
 
         // add click event listener to anchor circles
-        this.scene.addEventListener("click", anchorCoupling.anchorShape, e => {
-            this.activeAnchorCoupling?.anchorShape.setFillColor("red")
-            anchorCoupling.anchorShape.setFillColor("lime")
-            this.activeAnchorCoupling = anchorCoupling
-            this.scene.render()
-        }, { shiftKey: false })
+        this.scene.addEventListener("mousedown", anchorCoupling.anchorShape, e => {
+            this.setActiveAnchorCoupling(anchorCoupling)
+        }, { shiftKey: false, button: 0 })
 
         // add click event listener to track
-        this.scene.addEventListener("click", anchorCoupling.trackShape, e => {
+        this.scene.addEventListener("mousedown", anchorCoupling.trackShape, e => {
             const newAnchor = new Anchor(e.offsetX, e.offsetY)
             this.path.addAnchorAfter(newAnchor, anchorCoupling.anchor)
             this.addAnchorCoupling(newAnchor)
+            this.setActiveAnchorCoupling(this.anchorCouplings.at(-1))
             this.synchronize()
             this.scene.render()
-        }, { shiftKey: true })
+        }, { shiftKey: true, button: 0 })
 
         // add right click event listener to anchor circles
-        this.scene.addEventListener("contextmenu", anchorCoupling.anchorShape, e => {
+        this.scene.addEventListener("mousedown", anchorCoupling.anchorShape, e => {
             if (this.path.anchors.length > 3) {
                 this.path.removeAnchor(anchorCoupling.anchor)
 
@@ -126,11 +137,13 @@ class Game {
                 this.scene.removeShape(anchorCoupling.controlPointLineShape2)
                 this.scene.removeShape(anchorCoupling.trackShape)
                 anchorCoupling.linearizedTrackShapes.forEach(linearizedTrackShape => this.scene.removeShape(linearizedTrackShape))
+                anchorCoupling.linearizedBorderShapes1.forEach(linearizedBorderShape => this.scene.removeShape(linearizedBorderShape))
+                anchorCoupling.linearizedBorderShapes2.forEach(linearizedBorderShape => this.scene.removeShape(linearizedBorderShape))
 
                 this.synchronize()
                 this.scene.render()
             }
-        })
+        }, { button: 2 })
 
         this.scene.addEventListener("drag", anchorCoupling.anchorShape, (e, offset) => {
             anchorCoupling.anchor.position = Vector2D.add(anchorCoupling.anchor.position, offset)
@@ -200,6 +213,21 @@ class Game {
                 anchorCoupling.linearizedBorderShapes2[i].y2 = linearizedBorders[i+1][1].y
             }
         })
+    }
+
+    update() {
+        this.synchronize()
+        this.scene.render()
+    }
+
+    setActiveAnchorCoupling(anchorCoupling) {
+        this.activeAnchorCoupling?.anchorShape.setFillColor("red")
+        anchorCoupling.anchorShape.setFillColor("lime")
+        this.activeAnchorCoupling = anchorCoupling
+
+        document.getElementById("trackWidth").value = this.activeAnchorCoupling.anchor.width
+
+        this.scene.render()
     }
 }
 
