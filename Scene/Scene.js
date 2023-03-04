@@ -23,6 +23,7 @@ class Scene {
     }
 
     removeShape(shape) {
+        this.removeAllEventListenersFromShape(shape)
         this.shapes.splice(this.shapes.indexOf(shape), 1)
     }
 
@@ -52,8 +53,29 @@ class Scene {
         }
     }
 
-    makeShapeDraggable(shape) {
+    removeEventListeners(event, shape) {
+        if (!this.shapes.includes(shape)) {
+            console.error("Shape unknown: " + shape)
+            return
+        }
 
+        if (!this.eventHandlers[event]) {
+            console.error("Event unknown: " + event)
+            return
+        } else {
+            this.eventHandlers[event].deregisterShape(shape)
+        }
+    }
+
+    removeAllEventListenersFromShape(shape) {
+        if (!this.shapes.includes(shape)) {
+            console.error("Shape unknown: " + shape)
+            return
+        }
+
+        for(let event in this.eventHandlers) {
+            this.eventHandlers[event].deregisterShape(shape)
+        }
     }
 }
 

@@ -11,13 +11,11 @@ class EventHandler {
     }
 
     deregisterShape(shape) {
-        this.eventCallbacks.every((eventCallback, index) => {
-            if (eventCallback.shape === shape) {
-                this.eventCallbacks.splice(index, 1)
-                return false // end searching for correct element
+        for (let i = this.eventCallbacks.length - 1; i >= 0; i--) {
+            if (this.eventCallbacks[i].shape === shape) {
+                this.eventCallbacks.splice(i, 1)
             }
-            return true // continue searching for correct element
-        })
+        }
     }
 
     deregisterAllShapes() {
