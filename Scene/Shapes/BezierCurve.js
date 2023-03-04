@@ -29,7 +29,7 @@ class BezierCurve extends Shape {
 
     contains(position, resolution=100) {
         for (let t = 0; t <= resolution; t++) {
-            if (Vector2D.subtract(position, this.getPointOnLine(t/resolution)).length() 
+            if (Vector2D.sub(position, this.getPointOnLine(t/resolution)).length() 
                 <= this.strokeWidth) return true
         }
         return false

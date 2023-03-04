@@ -33,7 +33,7 @@ class EventHandlerDrag extends EventHandler {
         if (this.draggingEventCallback) {
             const mousePosition = new Vector2D(e.offsetX, e.offsetY)
 
-            const offset = Vector2D.subtract(mousePosition, this.dragStartPosition)
+            const offset = Vector2D.sub(mousePosition, this.dragStartPosition)
 
             this.draggingEventCallback.callback(e, offset)
 

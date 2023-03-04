@@ -16,7 +16,7 @@ class Circle extends Shape {
     }
 
     contains(position) {
-        return Vector2D.subtract(position, new Vector2D(this.x, this.y)).length() <= this.radius
+        return Vector2D.sub(position, new Vector2D(this.x, this.y)).length() <= this.radius
     }
 
     render(context) {

@@ -1,10 +1,10 @@
 import { Vector2D } from "../Vector/Vector2D.js"
+import { Vector3D } from "../Vector/Vector3D.js"
 
 class Path {
-    anchors
-
     constructor(anchors=null) {
         this.anchors = anchors || []
+
         this.calculateNeighborAnchors()
         this.calculataAnchorControlPoints()
     }
@@ -44,27 +44,53 @@ class Path {
         this.anchors.forEach(anchor => anchor.calculateControlPoints())
     }
 
-    getRasterizedPathSegment(anchor, resolution=10) {
-        const rasterizationPoints = []
+    getLinearizedPath(anchor, resolution=10) {
+        const linearizationPoints = []
 
         for (let t = 0; t <= resolution; t++) {
-            rasterizationPoints.push(this.getPointOnPath(anchor, t/resolution))
+            linearizationPoints.push(this.getPointOnPath(anchor, t/resolution))
         }
 
-        return rasterizationPoints
+        return linearizationPoints
+    }
+
+    getLinearizedBorders(anchor, resolution=10) {
+        const linearizationPoints = []
+
+        for (let t = 0; t <= resolution; t++) {
+            linearizationPoints.push(this.getPointsOnBorder(anchor, t/resolution))
+        }
+
+        return linearizationPoints
     }
 
     getPointOnPath(anchor, t) {
-        return new Vector2D(
-            (1-t)**3 * anchor.position.x 
-            + 3 * (1-t)**2 * t * anchor.controlPoints[1].x 
-            + 3 * (1-t) * t**2 * anchor.nextAnchor.controlPoints[0].x
-            + t**3 * anchor.nextAnchor.position.x,
-            (1-t)**3 * anchor.position.y 
-            + 3 * (1-t)**2 * t * anchor.controlPoints[1].y 
-            + 3 * (1-t) * t**2 * anchor.nextAnchor.controlPoints[0].y
-            + t**3 * anchor.nextAnchor.position.y
-        )
+        const bezierPoints = [anchor.position, anchor.controlPoints[1], anchor.nextAnchor.controlPoints[0], anchor.nextAnchor.position]
+
+        // explicit form of cubic bezier curve
+        return Vector2D.exec((p0, p1, p2, p3) => (1-t)**3 * p0 + 3 * (1-t)**2 * t * p1 + 3 * (1-t) * t**2 * p2 + t**3 * p3, bezierPoints)
+    }
+
+    getPointsOnBorder(anchor, t) {
+        const pointOnPath = this.getPointOnPath(anchor, t)
+        const orthogonalVector = Vector3D.cross(this.derivative(anchor, t), Vector3D.ez).normalize()
+        
+        return [
+            Vector2D.add(pointOnPath, Vector2D.mul(orthogonalVector, 25)),
+            Vector2D.add(pointOnPath, Vector2D.mul(orthogonalVector, -25))
+        ]
+    }
+
+    derivative(anchor, t) {
+        const bezierPoints = [anchor.position, anchor.controlPoints[1], anchor.nextAnchor.controlPoints[0], anchor.nextAnchor.position]
+        const bezierVectors = [
+            Vector2D.sub(bezierPoints[1], bezierPoints[0]),
+            Vector2D.sub(bezierPoints[2], bezierPoints[1]),
+            Vector2D.sub(bezierPoints[3], bezierPoints[2]),
+        ]
+
+        // explicit form of derivative of cubic bezier curve
+        return Vector2D.exec((p0, p1, p2) => 3 * (1-t)**2 * p0 + 6 * (1-t) * t * p1 + 3 * t**2 * p2, bezierVectors)
     }
 
     loopIndex(index) {

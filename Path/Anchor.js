@@ -4,6 +4,7 @@ import { Vector3D } from "../Vector/Vector3D.js"
 class Anchor {
     constructor(x, y) {
         this.position = new Vector2D(x, y)
+        this.width = 50
         this.controlPoints = [Vector2D.zero, Vector2D.zero]
         this.previousAnchor = null
         this.nextAnchor = null
@@ -25,14 +26,14 @@ class Anchor {
     }
 
     calculateControlPoints() {
-        const vectorToPreviousAchor = Vector2D.subtract(this.previousAnchor.position, this.position)
-        const vectorToNextAchor = Vector2D.subtract(this.nextAnchor.position, this.position)
+        const vectorToPreviousAchor = Vector2D.sub(this.previousAnchor.position, this.position)
+        const vectorToNextAchor = Vector2D.sub(this.nextAnchor.position, this.position)
 
-        const direction = Vector2D.add(vectorToPreviousAchor.normalize(), vectorToNextAchor.normalize()).normalize().crossProduct(Vector3D.ez)
+        const direction = Vector2D.add(vectorToPreviousAchor.normalize(), vectorToNextAchor.normalize()).normalize().cross(Vector3D.ez)
 
         this.controlPoints = [
-            Vector2D.add(this.position, Vector2D.multiply(direction, Math.sign(Vector2D.dotProduct(vectorToPreviousAchor, direction)) * 0.4 * vectorToPreviousAchor.length())),
-            Vector2D.add(this.position, Vector2D.multiply(direction, Math.sign(Vector2D.dotProduct(vectorToNextAchor, direction)) * 0.4 * vectorToNextAchor.length()))
+            Vector2D.add(this.position, Vector2D.mul(direction, Math.sign(Vector2D.dot(vectorToPreviousAchor, direction)) * 0.4 * vectorToPreviousAchor.length())),
+            Vector2D.add(this.position, Vector2D.mul(direction, Math.sign(Vector2D.dot(vectorToNextAchor, direction)) * 0.4 * vectorToNextAchor.length()))
         ]
     }
 }

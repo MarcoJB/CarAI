@@ -38,12 +38,12 @@ class Scene {
 
     addEventListener(event, shape, callback, options) {
         if (!this.shapes.includes(shape)) {
-            console.error("Shape unknown.")
+            console.error("Shape unknown: " + shape)
             return
         }
 
         if (!this.eventHandlers[event]) {
-            console.error("Event unknown.")
+            console.error("Event unknown: " + event)
             return
         } else {
             this.eventHandlers[event].registerShape(shape, callback, options)
