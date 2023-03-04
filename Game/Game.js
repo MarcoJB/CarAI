@@ -134,14 +134,18 @@ class Game {
                 this.path.removeAnchor(anchorCoupling.anchor)
 
                 this.scene.removeShape(anchorCoupling.anchorShape)
-                this.scene.removeShape(anchorCoupling.controlPoint1Shape)
-                this.scene.removeShape(anchorCoupling.controlPoint2Shape)
-                this.scene.removeShape(anchorCoupling.controlPointLineShape1)
-                this.scene.removeShape(anchorCoupling.controlPointLineShape2)
+                if (this.showControlPoints) {
+                    this.scene.removeShape(anchorCoupling.controlPoint1Shape)
+                    this.scene.removeShape(anchorCoupling.controlPoint2Shape)
+                    this.scene.removeShape(anchorCoupling.controlPointLineShape1)
+                    this.scene.removeShape(anchorCoupling.controlPointLineShape2)
+                }
                 this.scene.removeShape(anchorCoupling.trackShape)
                 anchorCoupling.linearizedTrackShapes.forEach(linearizedTrackShape => this.scene.removeShape(linearizedTrackShape))
                 anchorCoupling.linearizedBorderShapes1.forEach(linearizedBorderShape => this.scene.removeShape(linearizedBorderShape))
                 anchorCoupling.linearizedBorderShapes2.forEach(linearizedBorderShape => this.scene.removeShape(linearizedBorderShape))
+
+                this.removeAnchorCoupling(anchorCoupling)
 
                 this.synchronize()
                 this.scene.render()
@@ -156,6 +160,10 @@ class Game {
         })
 
         this.synchronize()
+    }
+
+    removeAnchorCoupling(anchorCoupling) {
+        this.anchorCouplings.splice(this.anchorCouplings.indexOf(anchorCoupling), 1)
     }
 
     synchronize() {
