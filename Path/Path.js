@@ -27,6 +27,20 @@ class Path {
         this.update()
     }
 
+    setStartAnchor(anchor) {
+        if (!this.anchors.includes(anchor)) return
+
+        this.anchors = this.anchors.concat(this.anchors.splice(0, this.anchors.indexOf(anchor)))
+
+        this.update()
+    }
+
+    reverseAnchors() {
+        this.anchors = this.anchors.concat(this.anchors.splice(0, 1))
+        this.anchors.reverse()
+        this.update()
+    }
+
     update() {
         this.calculateNeighborAnchors()
         this.calculataAnchorControlPoints()

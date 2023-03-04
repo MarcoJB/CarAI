@@ -51,15 +51,12 @@ class Game {
         anchors.forEach(anchor => this.addAnchorCoupling(anchor))
         this.setActiveAnchorCoupling(this.anchorCouplings[0])
 
-        this.startMarker.position = this.path.anchors[0].position
-        const derivative = this.path.derivative(this.path.anchors[0], 0)
-        this.startMarker.rotation = -Math.atan2(derivative.y, derivative.x)
-
         this.scene.render()
     }
 
     redraw() {
         this.scene.reset()
+        this.scene.rootShape.addChildShape(this.startMarker)
 
         this.anchorCouplings = []
         this.path.anchors.forEach(anchor => this.addAnchorCoupling(anchor))
@@ -239,6 +236,10 @@ class Game {
                 anchorCoupling.linearizedBorderShapes2[i].end = linearizedBorders[i+1][1]
             }
         })
+
+        this.startMarker.position = this.path.anchors[0].position
+        const derivative = this.path.derivative(this.path.anchors[0], 0)
+        this.startMarker.rotation = -Math.atan2(derivative.y, derivative.x)
     }
 
     update() {

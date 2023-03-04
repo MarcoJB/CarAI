@@ -9,6 +9,8 @@ window.addEventListener("load", () => {
     const trackWidthInput = document.getElementById("trackWidth")
     const linearizationResolutionInput = document.getElementById("linearizationResolution")
     const showControlPointsCheckBox = document.getElementById("showControlPoints")
+    const setStartAnchorButton = document.getElementById("setStartAnchor")
+    const togglePathDirectionButton = document.getElementById("togglePathDirection")
 
     linearizationResolutionInput.value = game.linearizationResolution
 
@@ -16,12 +18,12 @@ window.addEventListener("load", () => {
     saveBtn.addEventListener("click", game.stateManager.saveState)
 
     trackWidthInput.addEventListener("input", e => {
-        game.activeAnchorCoupling.anchor.width = e.target.value
+        game.activeAnchorCoupling.anchor.width = parseInt(e.target.value)
         game.update()
     })
 
     linearizationResolutionInput.addEventListener("input", e => {
-        game.linearizationResolution = e.target.value
+        game.linearizationResolution = parseInt(e.target.value)
         game.redraw()
         game.update()
     })
@@ -29,6 +31,16 @@ window.addEventListener("load", () => {
     showControlPointsCheckBox.addEventListener("change", e => {
         game.showControlPoints = e.target.checked
         game.redraw()
+    })
+
+    setStartAnchorButton.addEventListener("click", () => {
+        game.path.setStartAnchor(game.activeAnchorCoupling.anchor)
+        game.update()
+    })
+
+    togglePathDirectionButton.addEventListener("click", () => {
+        game.path.reverseAnchors()
+        game.update()
     })
 })
 
