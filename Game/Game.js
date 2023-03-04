@@ -2,6 +2,7 @@ import { Circle } from "../Scene/Shapes/Circle.js"
 import { Scene } from "../Scene/Scene.js"
 import { Path } from "../Path/Path.js"
 import { Line } from "../Scene/Shapes/Line.js"
+import { Container } from "../Scene/Shapes/Container.js"
 import { BezierCurve } from "../Scene/Shapes/BezierCurve.js"
 import { AnchorCoupling } from "./Couplings/AnchorCoupling.js"
 import { Anchor } from "../Path/Anchor.js"
@@ -19,15 +20,26 @@ class Game {
         this.linearizationResolution = 20
         this.showControlPoints = false
 
-        /*this.startMarker = new MultiShape(0, 0, 0, 30)
-        this.startMarker.addShape(new Line({
-            x1: 0,
-            y1: 0,
-            x2: 30,
-            y2: 0,
+        this.startMarker = new Container({zIndex: 30})
+        this.scene.rootShape.addChildShape(this.startMarker)
+        this.startMarker.addChildShape(new Line({
+            start: new Vector2D(0, 0),
+            end: new Vector2D(30, 0),
             strokeColor: "black",
             strokeWidth: 2
-        }))*/
+        }))
+        this.startMarker.addChildShape(new Line({
+            start: new Vector2D(22, 7),
+            end: new Vector2D(30, 0),
+            strokeColor: "black",
+            strokeWidth: 2
+        }))
+        this.startMarker.addChildShape(new Line({
+            start: new Vector2D(22, -7),
+            end: new Vector2D(30, 0),
+            strokeColor: "black",
+            strokeWidth: 2
+        }))
 
         this.init(StateManager.currentAnchors)
     }
@@ -38,6 +50,10 @@ class Game {
 
         anchors.forEach(anchor => this.addAnchorCoupling(anchor))
         this.setActiveAnchorCoupling(this.anchorCouplings[0])
+
+        this.startMarker.position = this.path.anchors[0].position
+        const derivative = this.path.derivative(this.path.anchors[0], 0)
+        this.startMarker.rotation = -Math.atan2(derivative.y, derivative.x)
 
         this.scene.render()
     }

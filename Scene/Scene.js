@@ -27,7 +27,6 @@ class Scene {
 
     removeShape(shape) {
         this.rootShape.removeChildShape(shape)
-        this.removeAllEventListenersFromShape(shape)
     }
 
     reset() {
