@@ -2,13 +2,16 @@ import { EventHandlerClick } from "./EventHandlers/EventHandlerClick.js"
 import { EventHandlerMouseDown } from "./EventHandlers/EventHandlerMouseDown.js"
 import { EventHandlerContextmenu } from "./EventHandlers/EventHandlerContextmenu.js"
 import { EventHandlerDrag } from "./EventHandlers/EventHandlerDrag.js"
+import { Container } from "./Shapes/Container.js"
+import { Vector2D } from "../Vector/Vector2D.js"
 
 class Scene {
     constructor(canvas) {
         this.canvas = canvas
         this.context = canvas.getContext('2d')
-        this.shapes = []
         this.eventHandlers = {}
+
+        this.rootShape = new Container()
 
         this.eventHandlers["click"] = new EventHandlerClick(this.canvas)
         this.eventHandlers["mousedown"] = new EventHandlerMouseDown(this.canvas)
@@ -19,12 +22,12 @@ class Scene {
     }
 
     addShape(shape) {
-        this.shapes.push(shape)
+        this.rootShape.addChildShape(shape)
     }
 
     removeShape(shape) {
+        this.rootShape.removeChildShape(shape)
         this.removeAllEventListenersFromShape(shape)
-        this.shapes.splice(this.shapes.indexOf(shape), 1)
     }
 
     reset() {
@@ -35,16 +38,10 @@ class Scene {
 
     render() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
-        this.shapes.sort((shape1, shape2) => shape1.zIndex - shape2.zIndex)
-            .forEach(shape => shape.render(this.context))
+        this.rootShape.render(this.context)
     }
 
     addEventListener(event, shape, callback, options) {
-        if (!this.shapes.includes(shape)) {
-            console.error("Shape unknown: " + shape)
-            return
-        }
-
         if (!this.eventHandlers[event]) {
             console.error("Event unknown: " + event)
             return
@@ -54,11 +51,6 @@ class Scene {
     }
 
     removeEventListeners(event, shape) {
-        if (!this.shapes.includes(shape)) {
-            console.error("Shape unknown: " + shape)
-            return
-        }
-
         if (!this.eventHandlers[event]) {
             console.error("Event unknown: " + event)
             return
@@ -68,11 +60,6 @@ class Scene {
     }
 
     removeAllEventListenersFromShape(shape) {
-        if (!this.shapes.includes(shape)) {
-            console.error("Shape unknown: " + shape)
-            return
-        }
-
         for(let event in this.eventHandlers) {
             this.eventHandlers[event].deregisterShape(shape)
         }

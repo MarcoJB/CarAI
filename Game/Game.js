@@ -15,9 +15,19 @@ class Game {
         this.anchorCouplings = []
         this.activeAnchorCoupling = null
         this.stateManager = StateManager
-        StateManager.setPath(this.path);
+        StateManager.setPath(this.path)
         this.linearizationResolution = 20
         this.showControlPoints = false
+
+        /*this.startMarker = new MultiShape(0, 0, 0, 30)
+        this.startMarker.addShape(new Line({
+            x1: 0,
+            y1: 0,
+            x2: 30,
+            y2: 0,
+            strokeColor: "black",
+            strokeWidth: 2
+        }))*/
 
         this.init(StateManager.currentAnchors)
     }
@@ -80,8 +90,8 @@ class Game {
 
         // add track curves (only for click events)
         anchorCoupling.trackShape = new BezierCurve({
-            strokeColor: 'white',
-            strokeWidth: 50,
+            strokeColor: 'whitesmoke',
+            strokeWidth: 20,
             zIndex: 10
         }).addToScene(this.scene)
 
@@ -175,37 +185,28 @@ class Game {
             const linearizedPath = this.path.getLinearizedPath(anchor, this.linearizationResolution)
             const linearizedBorders = this.path.getLinearizedBorders(anchor, this.linearizationResolution)
 
-            anchorCoupling.anchorShape.x = anchor.position.x
-            anchorCoupling.anchorShape.y = anchor.position.y
+            anchorCoupling.anchorShape.center = anchor.position
 
             if (this.showControlPoints) {
-                anchorCoupling.controlPoint1Shape.x = controlPoints[0].x
-                anchorCoupling.controlPoint1Shape.y = controlPoints[0].y
+                anchorCoupling.controlPoint1Shape.center = controlPoints[0]
 
-                anchorCoupling.controlPoint2Shape.x = controlPoints[1].x
-                anchorCoupling.controlPoint2Shape.y = controlPoints[1].y
+                anchorCoupling.controlPoint2Shape.center = controlPoints[1]
 
-                anchorCoupling.controlPointLineShape1.x1 = anchor.position.x
-                anchorCoupling.controlPointLineShape1.y1 = anchor.position.y
-                anchorCoupling.controlPointLineShape1.x2 = controlPoints[0].x
-                anchorCoupling.controlPointLineShape1.y2 = controlPoints[0].y
+                anchorCoupling.controlPointLineShape1.start = anchor.position
+                anchorCoupling.controlPointLineShape1.end = controlPoints[0]
 
-                anchorCoupling.controlPointLineShape2.x1 = anchor.position.x
-                anchorCoupling.controlPointLineShape2.y1 = anchor.position.y
-                anchorCoupling.controlPointLineShape2.x2 = controlPoints[1].x
-                anchorCoupling.controlPointLineShape2.y2 = controlPoints[1].y
+                anchorCoupling.controlPointLineShape2.start = anchor.position
+                anchorCoupling.controlPointLineShape2.end = controlPoints[1]
             }
 
-            anchorCoupling.trackShape.x1 = anchor.position.x
-            anchorCoupling.trackShape.y1 = anchor.position.y
-            anchorCoupling.trackShape.x2 = controlPoints[1].x
-            anchorCoupling.trackShape.y2 = controlPoints[1].y
-            anchorCoupling.trackShape.x3 = controlPointsNextAnchor[0].x
-            anchorCoupling.trackShape.y3 = controlPointsNextAnchor[0].y
-            anchorCoupling.trackShape.x4 = anchor.nextAnchor.position.x
-            anchorCoupling.trackShape.y4 = anchor.nextAnchor.position.y
+            anchorCoupling.trackShape.point1 = anchor.position
+            anchorCoupling.trackShape.point2 = controlPoints[1]
+            anchorCoupling.trackShape.point3 = controlPointsNextAnchor[0]
+            anchorCoupling.trackShape.point4 = anchor.nextAnchor.position
             
             for (let i = 0; i < linearizedPath.length - 1; i++) {
+                anchorCoupling.linearizedTrackShapes[i].start = linearizedPath[i]
+                anchorCoupling.linearizedTrackShapes[i].end = linearizedPath[i+1]
                 anchorCoupling.linearizedTrackShapes[i].x1 = linearizedPath[i].x
                 anchorCoupling.linearizedTrackShapes[i].y1 = linearizedPath[i].y
                 anchorCoupling.linearizedTrackShapes[i].x2 = linearizedPath[i+1].x
@@ -213,17 +214,13 @@ class Game {
             }
             
             for (let i = 0; i < linearizedBorders.length - 1; i++) {
-                anchorCoupling.linearizedBorderShapes1[i].x1 = linearizedBorders[i][0].x
-                anchorCoupling.linearizedBorderShapes1[i].y1 = linearizedBorders[i][0].y
-                anchorCoupling.linearizedBorderShapes1[i].x2 = linearizedBorders[i+1][0].x
-                anchorCoupling.linearizedBorderShapes1[i].y2 = linearizedBorders[i+1][0].y
+                anchorCoupling.linearizedBorderShapes1[i].start = linearizedBorders[i][0]
+                anchorCoupling.linearizedBorderShapes1[i].end = linearizedBorders[i+1][0]
             }
             
             for (let i = 0; i < linearizedBorders.length - 1; i++) {
-                anchorCoupling.linearizedBorderShapes2[i].x1 = linearizedBorders[i][1].x
-                anchorCoupling.linearizedBorderShapes2[i].y1 = linearizedBorders[i][1].y
-                anchorCoupling.linearizedBorderShapes2[i].x2 = linearizedBorders[i+1][1].x
-                anchorCoupling.linearizedBorderShapes2[i].y2 = linearizedBorders[i+1][1].y
+                anchorCoupling.linearizedBorderShapes2[i].start = linearizedBorders[i][1]
+                anchorCoupling.linearizedBorderShapes2[i].end = linearizedBorders[i+1][1]
             }
         })
     }

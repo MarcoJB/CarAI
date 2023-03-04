@@ -1,5 +1,4 @@
 import { Vector2D } from "../Vector/Vector2D.js"
-import { Vector3D } from "../Vector/Vector3D.js"
 
 class Path {
     constructor(anchors=null) {
@@ -81,7 +80,7 @@ class Path {
 
     getPointsOnBorder(anchor, t) {
         const pointOnPath = this.getPointOnPath(anchor, t)
-        const orthogonalVector = Vector3D.cross(this.derivative(anchor, t), Vector3D.ez).normalize()
+        const orthogonalVector = this.derivative(anchor, t).rotate(Math.PI/2).normalize()
 
         const width = this.getWidthOnPath(anchor, t)
         

@@ -5,31 +5,36 @@ class Circle extends Shape {
     constructor(config) {
         super(config)
 
-        this.x = config.x || 0
-        this.y = config.y || 0
+        config = config || {}
+        
+        this.center = config.center || Vector2D.zero()
         this.radius = config.radius || 0
     }
 
-    move(vector) {
-        this.x += vector.x
-        this.y += vector.y
-    }
-
     contains(position) {
-        return Vector2D.sub(position, new Vector2D(this.x, this.y)).length() <= this.radius
+        if (super.contains(position)) return true
+        
+        return Vector2D.sub(
+            this.relativePosition(position), 
+            new Vector2D(this.center.x, this.center.y)
+        ).length() <= this.radius
     }
 
     render(context) {
-        context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+        super.render(context)
+
+        const absoluteCenter = this.absolutePosition(this.center)
+
+        context.beginPath()
+        context.arc(absoluteCenter.x, absoluteCenter.y, this.radius, 0, 2 * Math.PI)
         if (this.fillColor) {
-            context.fillStyle = this.fillColor;
-            context.fill();
+            context.fillStyle = this.fillColor
+            context.fill()
         }
         if (this.strokeColor) {
-            context.lineWidth = this.strokeWidth;
-            context.strokeStyle = this.strokeColor;
-            context.stroke();
+            context.lineWidth = this.strokeWidth
+            context.strokeStyle = this.strokeColor
+            context.stroke()
         }
     }
 }

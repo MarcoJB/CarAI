@@ -6,50 +6,53 @@ class BezierCurve extends Shape {
     constructor(config) {
         super(config)
 
-        this.x1 = config.x1 || 0
-        this.y1 = config.y1 || 0
-        this.x2 = config.x2 || 0
-        this.y2 = config.y2 || 0
-        this.x3 = config.x3 || 0
-        this.y3 = config.y3 || 0
-        this.x4 = config.x4 || 0
-        this.y4 = config.y4 || 0
+        config = config || {}
+        
+        this.point1 = config.point1 || Vector2D.zero()
+        this.point2 = config.point2 || Vector2D.zero()
+        this.point3 = config.point3 || Vector2D.zero()
+        this.point4 = config.point4 || Vector2D.zero()
     }
 
-    move(vector) {
-        this.x1 += vector.x1
-        this.y1 += vector.y1
-        this.x2 += vector.x2
-        this.y2 += vector.y2
-        this.x3 += vector.x3
-        this.y3 += vector.y3
-        this.x4 += vector.x4
-        this.y4 += vector.y4
-    }
+    contains(position) {
+        if (super.contains(position)) return true
 
-    contains(position, resolution=100) {
+        const resolution = 100
         for (let t = 0; t <= resolution; t++) {
-            if (Vector2D.sub(position, this.getPointOnLine(t/resolution)).length() 
-                <= this.strokeWidth) return true
+            if (Vector2D.sub(this.relativePosition(position), this.getPointOnLine(t/resolution)).length() 
+                <= this.strokeWidth / 2) return true
         }
         return false
     }
 
     getPointOnLine(t) {
-        return new Vector2D(
-            (1-t)**3 * this.x1 + 3 * (1-t)**2 * t * this.x2 + 3 * (1-t) * t**2 * this.x3 + t**3 * this.x4,
-            (1-t)**3 * this.y1 + 3 * (1-t)**2 * t * this.y2 + 3 * (1-t) * t**2 * this.y3 + t**3 * this.y4
+        // explicit form of cubic bezier curve
+        return Vector2D.exec(
+            (p0, p1, p2, p3) => (1-t)**3 * p0 + 3 * (1-t)**2 * t * p1 + 3 * (1-t) * t**2 * p2 + t**3 * p3, 
+            [this.point1, this.point2, this.point3, this.point4]
         )
     }
 
     render(context) {
-        context.beginPath();
-        context.moveTo(this.x1, this.y1);
-        context.bezierCurveTo(this.x2, this.y2, this.x3, this.y3, this.x4, this.y4);
+        super.render(context)
+
+        const absolutePoint1 = this.absolutePosition(this.point1)
+        const absolutePoint2 = this.absolutePosition(this.point2)
+        const absolutePoint3 = this.absolutePosition(this.point3)
+        const absolutePoint4 = this.absolutePosition(this.point4)
+
+        context.beginPath()
+        context.moveTo(absolutePoint1.x, absolutePoint1.y)
+        context.bezierCurveTo(
+            absolutePoint2.x, absolutePoint2.y,
+            absolutePoint3.x, absolutePoint3.y,
+            absolutePoint4.x, absolutePoint4.y,
+        )
+
         if (this.strokeColor) {
-            context.lineWidth = this.strokeWidth;
-            context.strokeStyle = this.strokeColor;
-            context.stroke();
+            context.lineWidth = this.strokeWidth
+            context.strokeStyle = this.strokeColor
+            context.stroke()
         }
     }
 }

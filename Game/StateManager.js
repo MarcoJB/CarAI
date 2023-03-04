@@ -1,10 +1,10 @@
 import { Anchor } from "../Path/Anchor.js"
 
 export class StateManager {
-    static path;
+    static path
     static localStorageObjectName = "gameState"
     static currentAnchors
-    static startAnchors = [[500, 150], [700, 450], [300, 450]]
+    static startAnchors = [[500, 150, 50], [700, 450, 50], [300, 450, 50]]
 
     static setPath(path) {
         StateManager.path = path
@@ -26,10 +26,10 @@ export class StateManager {
 
     static loadState(returnState = false) {
         console.log("Loading state...")
-        const localStorageData = localStorage.getItem(StateManager.localStorageObjectName);
+        const localStorageData = localStorage.getItem(StateManager.localStorageObjectName)
         if (localStorageData) {
             try {
-                const gameState = JSON.parse(localStorageData);
+                const gameState = JSON.parse(localStorageData)
                 if (returnState) {
                     return gameState
                 }

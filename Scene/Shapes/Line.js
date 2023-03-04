@@ -1,23 +1,29 @@
+import { Vector2D } from "../../Vector/Vector2D.js"
 import { Shape } from "./Shape.js"
 
 class Line extends Shape {
     constructor(config) {
         super(config)
 
-        this.x1 = config.x1 || 0
-        this.y1 = config.y1 || 0
-        this.x2 = config.x2 || 0
-        this.y2 = config.y2 || 0
+        config = config || {}
+        
+        this.start = config.start || Vector2D.zero()
+        this.end = config.end || Vector2D.zero()
     }
 
     render(context) {
-        context.beginPath();
-        context.moveTo(this.x1, this.y1);
-        context.lineTo(this.x2, this.y2);
+        super.render(context)
+
+        const absoluteStart = this.absolutePosition(this.start)
+        const absoluteEnd = this.absolutePosition(this.end)
+
+        context.beginPath()
+        context.moveTo(absoluteStart.x, absoluteStart.y)
+        context.lineTo(absoluteEnd.x, absoluteEnd.y)
         if (this.strokeColor) {
-            context.lineWidth = this.strokeWidth;
-            context.strokeStyle = this.strokeColor;
-            context.stroke();
+            context.lineWidth = this.strokeWidth
+            context.strokeStyle = this.strokeColor
+            context.stroke()
         }
     }
 }
