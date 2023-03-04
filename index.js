@@ -7,6 +7,8 @@ window.addEventListener("load", () => {
     const saveBtn = document.getElementById("btnSave")
     const trackWidthInput = document.getElementById("trackWidth")
     const linearizationResolutionInput = document.getElementById("linearizationResolution")
+    const showControlPointsCheckBox = document.getElementById("showControlPoints")
+
     linearizationResolutionInput.value = game.linearizationResolution
 
     clearBtn.addEventListener("click", game.stateManager.clearState)
@@ -21,6 +23,11 @@ window.addEventListener("load", () => {
         game.linearizationResolution = e.target.value
         game.redraw()
         game.update()
+    })
+
+    showControlPointsCheckBox.addEventListener("change", e => {
+        game.showControlPoints = e.target.checked
+        game.redraw()
     })
 })
 

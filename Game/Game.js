@@ -17,6 +17,7 @@ class Game {
         this.stateManager = StateManager
         StateManager.setPath(this.path);
         this.linearizationResolution = 20
+        this.showControlPoints = false
 
         this.init(StateManager.currentAnchors)
     }
@@ -54,26 +55,28 @@ class Game {
         }).addToScene(this.scene)
 
         // add control point circles and lines
-        anchorCoupling.controlPoint1Shape = new Circle({
-            radius: 10,
-            fillColor: "grey",
-            zIndex: 21
-        }).addToScene(this.scene)
-        anchorCoupling.controlPoint2Shape = new Circle({
-            radius: 10,
-            fillColor: "grey",
-            zIndex: 21
-        }).addToScene(this.scene)
-        anchorCoupling.controlPointLineShape1 = new Line({
-            strokeColor: 'lightgrey',
-            strokeWidth: 1,
-            zIndex: 20
-        }).addToScene(this.scene)
-        anchorCoupling.controlPointLineShape2 = new Line({
-            strokeColor: 'lightgrey',
-            strokeWidth: 1,
-            zIndex: 20
-        }).addToScene(this.scene)
+        if (this.showControlPoints) {
+            anchorCoupling.controlPoint1Shape = new Circle({
+                radius: 10,
+                fillColor: "grey",
+                zIndex: 21
+            }).addToScene(this.scene)
+            anchorCoupling.controlPoint2Shape = new Circle({
+                radius: 10,
+                fillColor: "grey",
+                zIndex: 21
+            }).addToScene(this.scene)
+            anchorCoupling.controlPointLineShape1 = new Line({
+                strokeColor: 'lightgrey',
+                strokeWidth: 1,
+                zIndex: 20
+            }).addToScene(this.scene)
+            anchorCoupling.controlPointLineShape2 = new Line({
+                strokeColor: 'lightgrey',
+                strokeWidth: 1,
+                zIndex: 20
+            }).addToScene(this.scene)
+        }
 
         // add track curves (only for click events)
         anchorCoupling.trackShape = new BezierCurve({
@@ -167,21 +170,23 @@ class Game {
             anchorCoupling.anchorShape.x = anchor.position.x
             anchorCoupling.anchorShape.y = anchor.position.y
 
-            anchorCoupling.controlPoint1Shape.x = controlPoints[0].x
-            anchorCoupling.controlPoint1Shape.y = controlPoints[0].y
+            if (this.showControlPoints) {
+                anchorCoupling.controlPoint1Shape.x = controlPoints[0].x
+                anchorCoupling.controlPoint1Shape.y = controlPoints[0].y
 
-            anchorCoupling.controlPoint2Shape.x = controlPoints[1].x
-            anchorCoupling.controlPoint2Shape.y = controlPoints[1].y
+                anchorCoupling.controlPoint2Shape.x = controlPoints[1].x
+                anchorCoupling.controlPoint2Shape.y = controlPoints[1].y
 
-            anchorCoupling.controlPointLineShape1.x1 = anchor.position.x
-            anchorCoupling.controlPointLineShape1.y1 = anchor.position.y
-            anchorCoupling.controlPointLineShape1.x2 = controlPoints[0].x
-            anchorCoupling.controlPointLineShape1.y2 = controlPoints[0].y
+                anchorCoupling.controlPointLineShape1.x1 = anchor.position.x
+                anchorCoupling.controlPointLineShape1.y1 = anchor.position.y
+                anchorCoupling.controlPointLineShape1.x2 = controlPoints[0].x
+                anchorCoupling.controlPointLineShape1.y2 = controlPoints[0].y
 
-            anchorCoupling.controlPointLineShape2.x1 = anchor.position.x
-            anchorCoupling.controlPointLineShape2.y1 = anchor.position.y
-            anchorCoupling.controlPointLineShape2.x2 = controlPoints[1].x
-            anchorCoupling.controlPointLineShape2.y2 = controlPoints[1].y
+                anchorCoupling.controlPointLineShape2.x1 = anchor.position.x
+                anchorCoupling.controlPointLineShape2.y1 = anchor.position.y
+                anchorCoupling.controlPointLineShape2.x2 = controlPoints[1].x
+                anchorCoupling.controlPointLineShape2.y2 = controlPoints[1].y
+            }
 
             anchorCoupling.trackShape.x1 = anchor.position.x
             anchorCoupling.trackShape.y1 = anchor.position.y
