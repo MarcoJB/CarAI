@@ -34,8 +34,10 @@ class Anchor {
         ).normalize().rotate(Math.PI/2)
 
         this.controlPoints = [
-            Vector2D.add(this.position, Vector2D.mul(direction, Math.sign(Vector2D.dot(vectorToPreviousAchor, direction)) * 0.4 * vectorToPreviousAchor.length())),
-            Vector2D.add(this.position, Vector2D.mul(direction, Math.sign(Vector2D.dot(vectorToNextAchor, direction)) * 0.4 * vectorToNextAchor.length()))
+            Vector2D.add(this.position, Vector2D.mul(direction, Math.sign(Vector2D.dot(vectorToPreviousAchor, 
+                direction)) * 0.4 * vectorToPreviousAchor.length())),
+            Vector2D.add(this.position, Vector2D.mul(direction, Math.sign(Vector2D.dot(vectorToNextAchor, 
+                direction)) * 0.4 * vectorToNextAchor.length()))
         ]
     }
 }

@@ -8,6 +8,9 @@ import { AnchorCoupling } from "./Couplings/AnchorCoupling.js"
 import { Anchor } from "../Path/Anchor.js"
 import { StateManager } from "./StateManager.js"
 import { Vector2D } from "../Vector/Vector2D.js"
+import { Rect } from "../Scene/Shapes/Rect.js"
+import { Car } from "./Car.js"
+import { Clock } from "./Clock.js"
 
 class Game {
     constructor(canvas) {
@@ -19,27 +22,79 @@ class Game {
         StateManager.setPath(this.path)
         this.linearizationResolution = 20
         this.showControlPoints = false
+        this.car = null
+        this.step = 0.02
 
         this.startMarker = new Container({zIndex: 30})
         this.scene.rootShape.addChildShape(this.startMarker)
         this.startMarker.addChildShape(new Line({
-            start: new Vector2D(0, 0),
-            end: new Vector2D(30, 0),
+            points: [new Vector2D(0, 0), new Vector2D(30, 0)],
             strokeColor: "black",
             strokeWidth: 2
         }))
         this.startMarker.addChildShape(new Line({
-            start: new Vector2D(22, 7),
-            end: new Vector2D(30, 0),
+            points: [new Vector2D(22, 7), new Vector2D(30, 0)],
             strokeColor: "black",
             strokeWidth: 2
         }))
         this.startMarker.addChildShape(new Line({
-            start: new Vector2D(22, -7),
-            end: new Vector2D(30, 0),
+            points: [new Vector2D(22, -7), new Vector2D(30, 0)],
             strokeColor: "black",
             strokeWidth: 2
         }))
+
+        this.car = new Car()
+        this.car.shape = new Container({zIndex: 50})
+        this.scene.rootShape.addChildShape(this.car.shape)
+        this.car.shape.addChildShape(new Rect({
+            points: [
+                new Vector2D(-10, -5),
+                new Vector2D(10, -5),
+                new Vector2D(10, 5),
+                new Vector2D(-10, 5),
+            ],
+            fillColor: "maroon",
+        }))
+
+        Clock.step = this.step
+        Clock.addEventListener("tick", () => {
+            this.car.step(this.step)
+            this.update()
+        })
+        Clock.start()
+
+        window.addEventListener("keydown", e => {
+            switch(e.key) {
+                case "ArrowUp":
+                    this.car.acceleration = 500
+                    break
+                case "ArrowDown":
+                    this.car.acceleration = -500
+                    break
+                case "ArrowRight":
+                    this.car.angularVelocity = -Math.PI
+                    break
+                case "ArrowLeft":
+                    this.car.angularVelocity = Math.PI
+                    break
+            }
+        })
+        window.addEventListener("keyup", e => {
+            switch(e.key) {
+                case "ArrowUp":
+                    this.car.acceleration = 0
+                    break
+                case "ArrowDown":
+                    this.car.acceleration = 0
+                    break
+                case "ArrowRight":
+                    this.car.angularVelocity = 0
+                    break
+                case "ArrowLeft":
+                    this.car.angularVelocity = 0
+                    break
+            }
+        })
 
         this.init(StateManager.currentAnchors)
     }
@@ -66,12 +121,10 @@ class Game {
     }
 
     addAnchorCoupling(anchor) {
-        const anchorCoupling = new AnchorCoupling()
-
-        anchorCoupling.anchor = anchor
+        const anchorCoupling = new AnchorCoupling(anchor)
 
         // add anchor circle
-        anchorCoupling.anchorShape = new Circle({
+        anchorCoupling.shapes.anchor = new Circle({
             radius: 10,
             fillColor: "red",
             zIndex: 22
@@ -79,22 +132,22 @@ class Game {
 
         // add control point circles and lines
         if (this.showControlPoints) {
-            anchorCoupling.controlPoint1Shape = new Circle({
+            anchorCoupling.shapes.controlPoints[0] = new Circle({
                 radius: 10,
                 fillColor: "grey",
                 zIndex: 21
             }).addToScene(this.scene)
-            anchorCoupling.controlPoint2Shape = new Circle({
+            anchorCoupling.shapes.controlPoints[1] = new Circle({
                 radius: 10,
                 fillColor: "grey",
                 zIndex: 21
             }).addToScene(this.scene)
-            anchorCoupling.controlPointLineShape1 = new Line({
+            anchorCoupling.shapes.controlPointLines[0] = new Line({
                 strokeColor: 'lightgrey',
                 strokeWidth: 1,
                 zIndex: 20
             }).addToScene(this.scene)
-            anchorCoupling.controlPointLineShape2 = new Line({
+            anchorCoupling.shapes.controlPointLines[1] = new Line({
                 strokeColor: 'lightgrey',
                 strokeWidth: 1,
                 zIndex: 20
@@ -102,7 +155,7 @@ class Game {
         }
 
         // add track curves (only for click events)
-        anchorCoupling.trackShape = new BezierCurve({
+        anchorCoupling.shapestrackBezier = new BezierCurve({
             strokeColor: 'whitesmoke',
             strokeWidth: 20,
             zIndex: 10
@@ -110,7 +163,7 @@ class Game {
 
         // add linearized track curve
         for (let i = 0; i < this.linearizationResolution; i++) {
-            anchorCoupling.linearizedTrackShapes.push(new Line({
+            anchorCoupling.shapes.trackMiddleLine.push(new Line({
                 strokeColor: 'lightgrey',
                 strokeWidth: 1,
                 zIndex: 15
@@ -119,14 +172,14 @@ class Game {
 
         // add linearized track curve borders
         for (let i = 0; i < this.linearizationResolution; i++) {
-            anchorCoupling.linearizedBorderShapes1.push(new Line({
+            anchorCoupling.shapes.trackBorders[0].push(new Line({
                 strokeColor: 'black',
                 strokeWidth: 2,
                 zIndex: 15
             }).addToScene(this.scene))
         }
         for (let i = 0; i < this.linearizationResolution; i++) {
-            anchorCoupling.linearizedBorderShapes2.push(new Line({
+            anchorCoupling.shapes.trackBorders[1].push(new Line({
                 strokeColor: 'black',
                 strokeWidth: 2,
                 zIndex: 15
@@ -137,12 +190,12 @@ class Game {
 
 
         // add click event listener to anchor circles
-        this.scene.addEventListener("mousedown", anchorCoupling.anchorShape, e => {
+        this.scene.addEventListener("mousedown", anchorCoupling.shapes.anchor, e => {
             this.setActiveAnchorCoupling(anchorCoupling)
         }, { shiftKey: false, button: 0 })
 
         // add click event listener to track
-        this.scene.addEventListener("mousedown", anchorCoupling.trackShape, e => {
+        this.scene.addEventListener("mousedown", anchorCoupling.shapestrackBezier, e => {
             const newAnchor = new Anchor(e.offsetX, e.offsetY)
             this.path.addAnchorAfter(newAnchor, anchorCoupling.anchor)
             this.addAnchorCoupling(newAnchor)
@@ -152,21 +205,21 @@ class Game {
         }, { shiftKey: true, button: 0 })
 
         // add right click event listener to anchor circles
-        this.scene.addEventListener("mousedown", anchorCoupling.anchorShape, e => {
+        this.scene.addEventListener("mousedown", anchorCoupling.shapes.anchor, e => {
             if (this.path.anchors.length > 3) {
                 this.path.removeAnchor(anchorCoupling.anchor)
 
-                this.scene.removeShape(anchorCoupling.anchorShape)
+                this.scene.removeShape(anchorCoupling.shapes.anchor)
                 if (this.showControlPoints) {
-                    this.scene.removeShape(anchorCoupling.controlPoint1Shape)
-                    this.scene.removeShape(anchorCoupling.controlPoint2Shape)
-                    this.scene.removeShape(anchorCoupling.controlPointLineShape1)
-                    this.scene.removeShape(anchorCoupling.controlPointLineShape2)
+                    this.scene.removeShape(anchorCoupling.shapes.controlPoints[0])
+                    this.scene.removeShape(anchorCoupling.shapes.controlPoints[1])
+                    this.scene.removeShape(anchorCoupling.shapes.controlPointLines[0])
+                    this.scene.removeShape(anchorCoupling.shapes.controlPointLines[1])
                 }
-                this.scene.removeShape(anchorCoupling.trackShape)
-                anchorCoupling.linearizedTrackShapes.forEach(linearizedTrackShape => this.scene.removeShape(linearizedTrackShape))
-                anchorCoupling.linearizedBorderShapes1.forEach(linearizedBorderShape => this.scene.removeShape(linearizedBorderShape))
-                anchorCoupling.linearizedBorderShapes2.forEach(linearizedBorderShape => this.scene.removeShape(linearizedBorderShape))
+                this.scene.removeShape(anchorCoupling.shapestrackBezier)
+                anchorCoupling.shapes.trackMiddleLine.forEach(linearizedTrackShape => this.scene.removeShape(linearizedTrackShape))
+                anchorCoupling.shapes.trackBorders[0].forEach(linearizedBorderShape => this.scene.removeShape(linearizedBorderShape))
+                anchorCoupling.shapes.trackBorders[1].forEach(linearizedBorderShape => this.scene.removeShape(linearizedBorderShape))
 
                 this.removeAnchorCoupling(anchorCoupling)
 
@@ -175,7 +228,7 @@ class Game {
             }
         }, { button: 2 })
 
-        this.scene.addEventListener("drag", anchorCoupling.anchorShape, (e, offset) => {
+        this.scene.addEventListener("drag", anchorCoupling.shapes.anchor, (e, offset) => {
             anchorCoupling.anchor.position = Vector2D.add(anchorCoupling.anchor.position, offset)
             this.path.calculataAnchorControlPoints()
             this.synchronize()
@@ -198,48 +251,47 @@ class Game {
             const linearizedPath = this.path.getLinearizedPath(anchor, this.linearizationResolution)
             const linearizedBorders = this.path.getLinearizedBorders(anchor, this.linearizationResolution)
 
-            anchorCoupling.anchorShape.center = anchor.position
+            anchorCoupling.shapes.anchor.center = anchor.position
 
             if (this.showControlPoints) {
-                anchorCoupling.controlPoint1Shape.center = controlPoints[0]
-
-                anchorCoupling.controlPoint2Shape.center = controlPoints[1]
-
-                anchorCoupling.controlPointLineShape1.start = anchor.position
-                anchorCoupling.controlPointLineShape1.end = controlPoints[0]
-
-                anchorCoupling.controlPointLineShape2.start = anchor.position
-                anchorCoupling.controlPointLineShape2.end = controlPoints[1]
+                anchorCoupling.shapes.controlPoints[0].center = controlPoints[0]
+                anchorCoupling.shapes.controlPoints[1].center = controlPoints[1]
+                anchorCoupling.shapes.controlPointLines[0].points = [anchor.position, controlPoints[0]]
+                anchorCoupling.shapes.controlPointLines[1].points = [anchor.position, controlPoints[1]]
             }
 
-            anchorCoupling.trackShape.point1 = anchor.position
-            anchorCoupling.trackShape.point2 = controlPoints[1]
-            anchorCoupling.trackShape.point3 = controlPointsNextAnchor[0]
-            anchorCoupling.trackShape.point4 = anchor.nextAnchor.position
+            anchorCoupling.shapestrackBezier.points = [
+                anchor.position,
+                controlPoints[1],
+                controlPointsNextAnchor[0],
+                anchor.nextAnchor.position,
+            ]
             
             for (let i = 0; i < linearizedPath.length - 1; i++) {
-                anchorCoupling.linearizedTrackShapes[i].start = linearizedPath[i]
-                anchorCoupling.linearizedTrackShapes[i].end = linearizedPath[i+1]
-                anchorCoupling.linearizedTrackShapes[i].x1 = linearizedPath[i].x
-                anchorCoupling.linearizedTrackShapes[i].y1 = linearizedPath[i].y
-                anchorCoupling.linearizedTrackShapes[i].x2 = linearizedPath[i+1].x
-                anchorCoupling.linearizedTrackShapes[i].y2 = linearizedPath[i+1].y
+                anchorCoupling.shapes.trackMiddleLine[i].points = [linearizedPath[i], linearizedPath[i+1]]
             }
             
             for (let i = 0; i < linearizedBorders.length - 1; i++) {
-                anchorCoupling.linearizedBorderShapes1[i].start = linearizedBorders[i][0]
-                anchorCoupling.linearizedBorderShapes1[i].end = linearizedBorders[i+1][0]
+                anchorCoupling.shapes.trackBorders[0][i].points = [
+                    linearizedBorders[i][0], 
+                    linearizedBorders[i+1][0],
+                ]
             }
             
             for (let i = 0; i < linearizedBorders.length - 1; i++) {
-                anchorCoupling.linearizedBorderShapes2[i].start = linearizedBorders[i][1]
-                anchorCoupling.linearizedBorderShapes2[i].end = linearizedBorders[i+1][1]
+                anchorCoupling.shapes.trackBorders[1][i].points = [
+                    linearizedBorders[i][1], 
+                    linearizedBorders[i+1][1],
+                ]
             }
         })
 
         this.startMarker.position = this.path.anchors[0].position
         const derivative = this.path.derivative(this.path.anchors[0], 0)
         this.startMarker.rotation = -Math.atan2(derivative.y, derivative.x)
+
+        this.car.shape.position = this.car.position
+        this.car.shape.rotation = this.car.rotation
     }
 
     update() {
@@ -248,8 +300,8 @@ class Game {
     }
 
     setActiveAnchorCoupling(anchorCoupling) {
-        this.activeAnchorCoupling?.anchorShape.setFillColor("red")
-        anchorCoupling.anchorShape.setFillColor("lime")
+        this.activeAnchorCoupling?.shapes.anchor.setFillColor("red")
+        anchorCoupling.shapes.anchor.setFillColor("lime")
         this.activeAnchorCoupling = anchorCoupling
 
         document.getElementById("trackWidth").value = this.activeAnchorCoupling.anchor.width

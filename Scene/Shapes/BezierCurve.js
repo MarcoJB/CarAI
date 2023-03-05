@@ -8,10 +8,7 @@ class BezierCurve extends Shape {
 
         config = config || {}
         
-        this.point1 = config.point1 || Vector2D.zero()
-        this.point2 = config.point2 || Vector2D.zero()
-        this.point3 = config.point3 || Vector2D.zero()
-        this.point4 = config.point4 || Vector2D.zero()
+        this.points = config.points || [Vector2D.zero(), Vector2D.zero(), Vector2D.zero(), Vector2D.zero()]
     }
 
     contains(position) {
@@ -29,24 +26,26 @@ class BezierCurve extends Shape {
         // explicit form of cubic bezier curve
         return Vector2D.exec(
             (p0, p1, p2, p3) => (1-t)**3 * p0 + 3 * (1-t)**2 * t * p1 + 3 * (1-t) * t**2 * p2 + t**3 * p3, 
-            [this.point1, this.point2, this.point3, this.point4]
+            this.points
         )
     }
 
     render(context) {
         super.render(context)
 
-        const absolutePoint1 = this.absolutePosition(this.point1)
-        const absolutePoint2 = this.absolutePosition(this.point2)
-        const absolutePoint3 = this.absolutePosition(this.point3)
-        const absolutePoint4 = this.absolutePosition(this.point4)
+        const absolutePoints = [
+            this.absolutePosition(this.points[0]),
+            this.absolutePosition(this.points[1]),
+            this.absolutePosition(this.points[2]),
+            this.absolutePosition(this.points[3]),
+        ]
 
         context.beginPath()
-        context.moveTo(absolutePoint1.x, absolutePoint1.y)
+        context.moveTo(absolutePoints[0].x, absolutePoints[0].y)
         context.bezierCurveTo(
-            absolutePoint2.x, absolutePoint2.y,
-            absolutePoint3.x, absolutePoint3.y,
-            absolutePoint4.x, absolutePoint4.y,
+            absolutePoints[1].x, absolutePoints[1].y,
+            absolutePoints[2].x, absolutePoints[2].y,
+            absolutePoints[3].x, absolutePoints[3].y,
         )
 
         if (this.strokeColor) {

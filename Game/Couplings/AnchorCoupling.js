@@ -1,17 +1,15 @@
 class AnchorCoupling {
-    constructor(anchor=null, anchorShape=null, controlPoint1Shape=null, controlPoint2Shape=null, 
-        controlPointLineShape1=null, controlPointLineShape2=null, trackShape=null, linearizedTrackShapes, 
-        linearizedBorderShapes1, linearizedBorderShapes2) {
+    constructor(anchor=null) {
         this.anchor = anchor
-        this.anchorShape = anchorShape
-        this.controlPoint1Shape = controlPoint1Shape
-        this.controlPoint2Shape = controlPoint2Shape
-        this.controlPointLineShape1 = controlPointLineShape1
-        this.controlPointLineShape2 = controlPointLineShape2
-        this.trackShape = trackShape
-        this.linearizedTrackShapes = linearizedTrackShapes || []
-        this.linearizedBorderShapes1 = linearizedBorderShapes1 || []
-        this.linearizedBorderShapes2 = linearizedBorderShapes2 || []
+        this.shapes = {
+            anchor: null,
+            controlPoints: [null, null],
+            controlPointLines: [null, null],
+            track: [],
+            trackMiddleLine: [],
+            trackBorders: [[], []],
+            trackBezier: null
+        }
     }
 }
 

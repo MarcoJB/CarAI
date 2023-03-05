@@ -4,12 +4,12 @@ class Vector2D {
         this.y = y
     }
 
-    length() {
-        return Vector2D.length(this)
+    add(vector) {
+        return Vector2D.add(this, vector)
     }
 
-    add(...vectors) {
-        return Vector2D.add(this, ...vectors)
+    addN(vectors) {
+        return Vector2D.addN([this].concat(vectors))
     }
 
     sub(vector) {
@@ -20,16 +20,20 @@ class Vector2D {
         return Vector2D.mul(this, factor)
     }
 
-    dot(vector) {
-        return Vector2D.dot(this, vector)
+    rotate(angle) {
+        return Vector2D.rotate(this, angle)
     }
 
     normalize() {
         return Vector2D.normalize(this)
     }
 
-    rotate(angle) {
-        return Vector2D.rotate(this, angle)
+    length() {
+        return Vector2D.length(this)
+    }
+
+    dot(vector) {
+        return Vector2D.dot(this, vector)
     }
 
     static ex() {return new Vector2D(1, 0)}
@@ -40,7 +44,14 @@ class Vector2D {
         return Math.sqrt(vector.x**2 + vector.y**2)
     }
 
-    static add(...vectors) {
+    static add(vector1, vector2) {
+        return new Vector2D(
+            vector1.x + vector2.x,
+            vector1.y + vector2.y,
+        )
+    }
+
+    static addN(vectors) {
         return new Vector2D(
             vectors.reduce((total, vector) => total + vector.x, 0),
             vectors.reduce((total, vector) => total + vector.y, 0),
