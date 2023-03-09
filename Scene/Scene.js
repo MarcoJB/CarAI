@@ -3,7 +3,6 @@ import { EventHandlerMouseDown } from "./EventHandlers/EventHandlerMouseDown.js"
 import { EventHandlerContextmenu } from "./EventHandlers/EventHandlerContextmenu.js"
 import { EventHandlerDrag } from "./EventHandlers/EventHandlerDrag.js"
 import { Container } from "./Shapes/Container.js"
-import { Vector2D } from "../Vector/Vector2D.js"
 
 class Scene {
     constructor(canvas) {
@@ -21,7 +20,7 @@ class Scene {
         this.canvas.addEventListener("contextmenu", (e) => e.preventDefault())
     }
 
-    addShape(shape) {
+    addShape(shape)  {
         this.rootShape.addChildShape(shape)
     }
 

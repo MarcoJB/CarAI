@@ -1,5 +1,5 @@
 import { Shape } from "./Shape.js"
-import { Vector2D } from "../../Vector/Vector2D.js"
+import { Shaper } from "../../Shaper.js"
 
 class Circle extends Shape {
     constructor(config) {
@@ -7,16 +7,16 @@ class Circle extends Shape {
 
         config = config || {}
         
-        this.center = config.center || Vector2D.zero()
+        this.center = config.center || Shaper.Vector.zero()
         this.radius = config.radius || 0
     }
 
     contains(position) {
         if (super.contains(position)) return true
         
-        return Vector2D.sub(
+        return Shaper.Vector.sub(
             this.relativePosition(position), 
-            new Vector2D(this.center.x, this.center.y)
+            new Shaper.Vector(this.center.x, this.center.y)
         ).length() <= this.radius
     }
 

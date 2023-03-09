@@ -1,5 +1,5 @@
 import { EventHandler } from "./EventHandler.js"
-import { Vector2D } from "../../Vector/Vector2D.js"
+import { Shaper } from "../../Shaper.js"
 
 class EventHandlerMouseDown extends EventHandler {
     constructor(canvas) {
@@ -9,7 +9,7 @@ class EventHandlerMouseDown extends EventHandler {
     }
 
     handleEventCallbacks(e) {
-        const mousePosition = new Vector2D(e.offsetX, e.offsetY)
+        const mousePosition = new Shaper.Vector(e.offsetX, e.offsetY)
         this.eventCallbacks.forEach(eventCallback => {
             // check all options to be satisfied
             for (let option in eventCallback.options) {

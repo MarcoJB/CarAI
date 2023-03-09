@@ -8,12 +8,21 @@
 
         </canvas>
         <br>
-        <button id="btnClear">Clear local storage</button>
-        <button id="btnSave">Save</button><br>
-        Track width: <input type="range" min="1" max="200" value="50" id="trackWidth"><br>
-        Linearization resolution: <input type="range" min="1" max="30" id="linearizationResolution"><br>
-        Show control points: <input type="checkbox" id="showControlPoints"><br>
-        <button id="setStartAnchor">Set start anchor</button>
-        <button id="togglePathDirection">Toggle path direction</button>
+        <button id="activateEditorMode">Activate editor mode</button>
+        <button id="activateSimulationMode">Activate simulation mode</button><br><br>
+        
+        <div id="controls-Editor" class="controls">
+            <button id="btnClear">Clear local storage</button>
+            <button id="btnSave">Save</button><br>
+            Track width: <input type="range" min="1" max="200" value="50" id="trackWidth"><br>
+            Linearization resolution: <input type="range" min="1" max="30" id="linearizationResolution"><br>
+            Show control points: <input type="checkbox" id="showControlPoints"><br>
+            <button id="setStartAnchor">Set start anchor</button>
+            <button id="togglePathDirection">Toggle path direction</button>
+        </div>
+        
+        <div id="controls-Simulation" class="controls">
+
+        </div>
     </body>
 </html>

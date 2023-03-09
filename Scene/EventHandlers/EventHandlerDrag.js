@@ -1,5 +1,5 @@
 import { EventHandler } from "./EventHandler.js"
-import { Vector2D } from "../../Vector/Vector2D.js"
+import { Shaper } from "../../Shaper.js"
 
 class EventHandlerDrag extends EventHandler {
     constructor(canvas) {
@@ -14,7 +14,7 @@ class EventHandlerDrag extends EventHandler {
     }
 
     handleMouseDown(e) {
-        const mousePosition = new Vector2D(e.offsetX, e.offsetY)
+        const mousePosition = new Shaper.Vector(e.offsetX, e.offsetY)
 
         this.eventCallbacks.every(eventCallback => {
             if (eventCallback.shape.contains(mousePosition)) {
@@ -31,9 +31,9 @@ class EventHandlerDrag extends EventHandler {
 
     handleMouseMove(e) {
         if (this.draggingEventCallback) {
-            const mousePosition = new Vector2D(e.offsetX, e.offsetY)
+            const mousePosition = new Shaper.Vector(e.offsetX, e.offsetY)
 
-            const offset = Vector2D.sub(mousePosition, this.dragStartPosition)
+            const offset = Shaper.Vector.sub(mousePosition, this.dragStartPosition)
 
             this.draggingEventCallback.callback(e, offset)
 

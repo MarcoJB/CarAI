@@ -1,9 +1,23 @@
 import { Game } from "./Game/Game.js"
 
-const game = new Game(document.getElementsByTagName("canvas")[0])
-window.game = game
+let game
 
 window.addEventListener("load", () => {
+    document.querySelector("#activateEditorMode").addEventListener("click", activateEditorMode)
+    document.querySelector("#activateSimulationMode").addEventListener("click", activateSimulationMode)
+
+    game = new Game(document.getElementsByTagName("canvas")[0])
+    window.game = game
+
+    initEditorMode()
+    initSimulationMode()
+
+    activateEditorMode()
+    activateSimulationMode()
+})
+
+
+function initEditorMode() {
     const clearBtn = document.getElementById("btnClear")
     const saveBtn = document.getElementById("btnSave")
     const trackWidthInput = document.getElementById("trackWidth")
@@ -12,37 +26,72 @@ window.addEventListener("load", () => {
     const setStartAnchorButton = document.getElementById("setStartAnchor")
     const togglePathDirectionButton = document.getElementById("togglePathDirection")
 
-    linearizationResolutionInput.value = game.linearizationResolution
-
-    clearBtn.addEventListener("click", game.stateManager.clearState)
-    saveBtn.addEventListener("click", game.stateManager.saveState)
+    clearBtn.addEventListener("click", () => {
+        if (!game.editor) return
+        editor.stateManager.clearState()
+    })
+    saveBtn.addEventListener("click", () => {
+        if (!game.editor) return
+        editor.stateManager.saveState
+    })
 
     trackWidthInput.addEventListener("input", e => {
-        game.activeAnchorCoupling.anchor.width = parseInt(e.target.value)
-        game.update()
+        if (!game.editor) return
+        game.editor.activeAnchorCoupling.anchor.width = parseInt(e.target.value)
+        game.editor.update()
     })
 
     linearizationResolutionInput.addEventListener("input", e => {
-        game.linearizationResolution = parseInt(e.target.value)
-        game.redraw()
-        game.update()
+        if (!game.editor) return
+        game.editor.linearizationResolution = parseInt(e.target.value)
+        game.editor.redraw()
+        game.editor.update()
     })
 
     showControlPointsCheckBox.addEventListener("change", e => {
-        game.showControlPoints = e.target.checked
-        game.redraw()
+        if (!game.editor) return
+        game.editor.showControlPoints = e.target.checked
+        game.editor.redraw()
     })
 
     setStartAnchorButton.addEventListener("click", () => {
-        game.path.setStartAnchor(game.activeAnchorCoupling.anchor)
-        game.update()
+        if (!game.editor) return
+        game.editor.path.setStartAnchor(editor.activeAnchorCoupling.anchor)
+        game.editor.update()
     })
 
     togglePathDirectionButton.addEventListener("click", () => {
-        game.path.reverseAnchors()
-        game.update()
+        if (!game.editor) return
+        game.editor.path.reverseAnchors()
+        game.editor.update()
     })
-})
+}
+
+function activateEditorMode() {
+    game.activateEditorMode()
+
+    document.querySelectorAll(".controls").forEach(control => control.style.display = "none")
+    document.querySelector("#controls-Editor").style.display = "block"
+
+    const linearizationResolutionInput = document.getElementById("linearizationResolution")
+    linearizationResolutionInput.value = game.editor.linearizationResolution
+
+    const showControlPointsCheckBox = document.getElementById("showControlPoints")
+    showControlPointsCheckBox.checked = game.editor.showControlPoints
+}
+
+
+function initSimulationMode() {
+
+}
+
+function activateSimulationMode() {
+    game.activateSimulationMode()
+
+    document.querySelectorAll(".controls").forEach(control => control.style.display = "none")
+    document.querySelector("#controls-Simulation").style.display = "block"
+}
+
 
 /*window.addEventListener("beforeunload", function (event) {
     // check if there are unsaved changes

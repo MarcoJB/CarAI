@@ -1,4 +1,4 @@
-import { Vector2D } from "../Vector/Vector2D.js"
+import { Shaper } from "../Shaper.js"
 
 class Path {
     constructor(anchors=null) {
@@ -67,14 +67,33 @@ class Path {
         return linearizationPoints
     }
 
-    getLinearizedBorders(anchor, resolution=10) {
-        const linearizationPoints = []
+    getLinearizedSegmentBorders(anchor, resolution=10) {
+        const linearizedSegmentBorders = [new Shaper.Path(), new Shaper.Path()]
 
         for (let t = 0; t <= resolution; t++) {
-            linearizationPoints.push(this.getPointsOnBorder(anchor, t/resolution))
+            const pointsOnBorder = this.getPointsOnBorder(anchor, t/resolution)
+            linearizedSegmentBorders[0].addPoint(pointsOnBorder[0])
+            linearizedSegmentBorders[1].addPoint(pointsOnBorder[1])
         }
 
-        return linearizationPoints
+        return linearizedSegmentBorders
+    }
+
+    getLinearizedBorders(resolution=10) {
+        const linearizedBorders = [new Shaper.Path(), new Shaper.Path()]
+
+        this.anchors.forEach(anchor => {
+            const linearizedSegmentBorders = this.getLinearizedSegmentBorders(anchor, resolution)
+            linearizedBorders[0].points.push(...linearizedSegmentBorders[0].points.slice(0, -1))
+            linearizedBorders[1].points.push(...linearizedSegmentBorders[1].points.slice(0, -1))
+        })
+
+        // Ensure that the first border is the outer border
+        const minXOfBorder1 = Math.min(...linearizedBorders[0].points.map(point => point.x))
+        const minXOfBorder2 = Math.min(...linearizedBorders[1].points.map(point => point.x))
+        if (minXOfBorder2 < minXOfBorder1) linearizedBorders.reverse()
+
+        return linearizedBorders
     }
 
     getPointOnPath(anchor, t) {
@@ -86,7 +105,7 @@ class Path {
         ]
 
         // explicit form of cubic bezier curve
-        return Vector2D.exec(
+        return Shaper.Vector.exec(
             (p0, p1, p2, p3) => (1-t)**3 * p0 + 3 * (1-t)**2 * t * p1 + 3 * (1-t) * t**2 * p2 + t**3 * p3, 
             bezierPoints
         )
@@ -99,8 +118,8 @@ class Path {
         const width = this.getWidthOnPath(anchor, t)
         
         return [
-            Vector2D.add(pointOnPath, Vector2D.mul(orthogonalVector, width/2)),
-            Vector2D.add(pointOnPath, Vector2D.mul(orthogonalVector, -width/2))
+            Shaper.Vector.add(pointOnPath, Shaper.Vector.mul(orthogonalVector, width/2)),
+            Shaper.Vector.add(pointOnPath, Shaper.Vector.mul(orthogonalVector, -width/2))
         ]
     }
 
@@ -117,13 +136,13 @@ class Path {
             anchor.nextAnchor.position
         ]
         const bezierVectors = [
-            Vector2D.sub(bezierPoints[1], bezierPoints[0]),
-            Vector2D.sub(bezierPoints[2], bezierPoints[1]),
-            Vector2D.sub(bezierPoints[3], bezierPoints[2]),
+            Shaper.Vector.sub(bezierPoints[1], bezierPoints[0]),
+            Shaper.Vector.sub(bezierPoints[2], bezierPoints[1]),
+            Shaper.Vector.sub(bezierPoints[3], bezierPoints[2]),
         ]
 
         // explicit form of derivative of cubic bezier curve
-        return Vector2D.exec(
+        return Shaper.Vector.exec(
             (p0, p1, p2) => 3 * (1-t)**2 * p0 + 6 * (1-t) * t * p1 + 3 * t**2 * p2, 
             bezierVectors
         )

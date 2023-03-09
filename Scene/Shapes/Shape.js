@@ -1,4 +1,4 @@
-import { Vector2D } from "../../Vector/Vector2D.js"
+import { Shaper } from "../../Shaper.js"
 
 class Shape {
     constructor(config) {
@@ -10,7 +10,7 @@ class Shape {
         this.zIndex = config.zIndex || 0
         this.rotation = config.rotation || 0
         this.parentShape = config.parentShape || null
-        this.position = config.position || Vector2D.zero()
+        this.position = config.position || Shaper.Vector.zero()
         this.childShapes = []
 
         if (config.childShapes) {
@@ -82,7 +82,7 @@ class Shape {
     }
 
     absolutePosition(point) {
-        point = Vector2D.add(point.rotate(this.rotation), this.position)
+        point = Shaper.Vector.add(point.rotate(this.rotation), this.position)
         
         if (this.parentShape) point = this.parentShape.absolutePosition(point)
         
@@ -92,7 +92,7 @@ class Shape {
     relativePosition(point) {
         if (this.parentShape) point = this.parentShape.relativePosition(point)
 
-        point = Vector2D.sub(point, this.position).rotate(-this.rotation)
+        point = Shaper.Vector.sub(point, this.position).rotate(-this.rotation)
 
         return point
     }

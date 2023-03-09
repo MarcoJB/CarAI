@@ -1,4 +1,4 @@
-import { Vector2D } from "../../Vector/Vector2D.js"
+import { Shaper } from "../../Shaper.js"
 import { Shape } from "./Shape.js"
 
 class Line extends Shape {
@@ -7,7 +7,7 @@ class Line extends Shape {
 
         config = config || {}
         
-        this.points = config.points || [Vector2D.zero(), Vector2D.zero()]
+        this.points = config.points || [Shaper.Vector.zero(), Shaper.Vector.zero()]
     }
 
     render(context) {
