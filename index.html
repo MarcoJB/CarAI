@@ -4,10 +4,8 @@
         <script type="module" src="index.js"></script>
     </head>
     <body>
-        <canvas width="1000" height="700">
+        <canvas id="trackcanvas" width="1000" height="700"></canvas><br><br>
 
-        </canvas>
-        <br>
         <button id="activateEditorMode">Activate editor mode</button>
         <button id="activateSimulationMode">Activate simulation mode</button><br><br>
         
@@ -22,7 +20,11 @@
         </div>
         
         <div id="controls-Simulation" class="controls">
-
+            <canvas id="scorecanvas" width="400" height="250"></canvas>
+            <canvas id="anncanvas" width="400" height="250"></canvas><br><br>
+            <!--Simulation speed: <input type="range" min="0" max="200" value="50" id="trackWidth"><br>-->
+            <button id="startSimulation">Start simulation</button>
+            <!--<button id="nextGeneration">Next generation</button>-->
         </div>
     </body>
 </html>

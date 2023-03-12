@@ -6,23 +6,38 @@ class Clock {
         tick: [],
         stop: [],
         pause: [],
-        continue: []
+        continue: [],
+        finish: [],
     }
+    static #runtime = 0
+    static #duration = null
 
-    static start() {
+    static start(duration=null) {
+        Clock.#runtime = 0
+        Clock.#duration = duration
+        console.log("Clock started", this.#duration, "sec")
         Clock.#callEventListeners("start")
         Clock.interval = setInterval(() => Clock.#tick(), Clock.step*1000)
-        console.log("Clock started")
     }
 
     static stop() {
-        Clock.#callEventListeners("start")
-        clearInterval(Clock.interval)
         console.log("Clock stopped")
+        clearInterval(Clock.interval)
+        Clock.#callEventListeners("stop")
+    }
+
+    static finish() {
+        console.log("Clock finished")
+        clearInterval(Clock.interval)
+        Clock.#callEventListeners("finish")
     }
 
     static #tick() {
         Clock.#callEventListeners("tick")
+        Clock.#runtime += Clock.step
+        if (Clock.#duration !== null && Clock.#runtime >= Clock.#duration) {
+            Clock.finish()
+        }
     }
 
     static addEventListener(event, callback) {
@@ -31,6 +46,10 @@ class Clock {
         } else {
             console.log("Unknown event: " + event)
         }
+    }
+
+    static getCurrentRuntime() {
+        return this.#runtime
     }
 
     static #callEventListeners(event, ...params) {

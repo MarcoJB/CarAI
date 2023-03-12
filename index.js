@@ -1,4 +1,11 @@
+import { ANN } from "./ANN/ANN.js"
+import { Layer } from "./ANN/Layer.js"
+import { Neuron } from "./ANN/Neuron.js"
 import { Game } from "./Game/Game.js"
+
+window.ANN = ANN
+window.Layer = Layer
+window.Neuon = Neuron
 
 let game
 
@@ -6,7 +13,7 @@ window.addEventListener("load", () => {
     document.querySelector("#activateEditorMode").addEventListener("click", activateEditorMode)
     document.querySelector("#activateSimulationMode").addEventListener("click", activateSimulationMode)
 
-    game = new Game(document.getElementsByTagName("canvas")[0])
+    game = new Game(document.getElementById("trackcanvas"))
     window.game = game
 
     initEditorMode()
@@ -82,7 +89,16 @@ function activateEditorMode() {
 
 
 function initSimulationMode() {
+    const startSimulationButton = document.getElementById("startSimulation")
+    startSimulationButton.addEventListener("click", () => {
+        game.simulation.start()
+        startSimulationButton.style.display = "none"
+    })
 
+    /*const nextGenerationButton = document.getElementById("nextGeneration")
+    nextGenerationButton.addEventListener("click", () => {
+        game.simulation.nextGeneration()
+    })*/
 }
 
 function activateSimulationMode() {
