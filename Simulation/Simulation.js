@@ -5,26 +5,29 @@ import { Rect } from "../Scene/Shapes/Rect.js"
 import { Clock } from "./Clock.js"
 import { Car } from "./Car.js"
 import { Shaper } from "./../Shaper.js"
-import { Line } from "../Scene/Shapes/Line.js"
 import { Layer } from "../ANN/Layer.js"
 import { ANN } from "../ANN/ANN.js"
+import { GPUController } from "./GPUController.js"
 
 class Simulation {
     constructor(trackBorders, scene=null) {
-        this.numberOfCars = 300
+        this.numberOfCars = 2700
+        this.numberOfDisplayedCars = 900
+        this.renderCars = true
         this.cars = []
 
         this.trackBorders = trackBorders
         this.scene = scene
-        this.stepDuration = 0.03
+        this.stepDuration = 1/30
         this.generationDuration = 5
-        this.generation = 1
+        this.generation = 0
 
         this.highscores = [0]
         this.averages = [0]
         this.averagesTops = [0]
 
         this.initCars()
+
 
         Clock.step = this.stepDuration
         Clock.addEventListener("tick", () => {
@@ -86,66 +89,68 @@ class Simulation {
 
             car.calcDistanceToTrackBorders()
 
-            car.shape = new Container({zIndex: 50})
-            this.scene.rootShape.addChildShape(car.shape)
-            car.shape.addChildShape(new Circle({
-                center: new Shaper.Vector(-5, 0),
-                radius: 5,
-                fillColor: "black",
-                zIndex: 20,
-            }))
-            car.front = new Circle({
-                center: new Shaper.Vector(5, 0),
-                radius: 5,
-                fillColor: "green",
-                zIndex: 20,
-            })
-            car.shape.addChildShape(car.front)
-            car.shape.addChildShape(new Rect({
-                points: [
-                    new Shaper.Vector(-5, -5),
-                    new Shaper.Vector(5, -5),
-                    new Shaper.Vector(5, 5),
-                    new Shaper.Vector(-5, 5),
-                ],
-                fillColor: "black",
-                zIndex: 20,
-            }))
-            car.rays.push(new Line({
-                points: [new Shaper.Vector(5, 0), new Shaper.Vector(5, 55)],
-                strokeColor: "#0f03",
-                strokeWidth: 1,
-                zIndex: 10,
-            }))
-            car.rays.push(new Line({
-                points: [new Shaper.Vector(5, 0), new Shaper.Vector(43.89, 38.89)],
-                strokeColor: "#0f03",
-                strokeWidth: 1,
-                zIndex: 10,
-            }))
-            car.rays.push(new Line({
-                points: [new Shaper.Vector(5, 0), new Shaper.Vector(60, 0)],
-                strokeColor: "#0f03",
-                strokeWidth: 1,
-                zIndex: 10,
-            }))
-            car.rays.push(new Line({
-                points: [new Shaper.Vector(5, 0), new Shaper.Vector(43.89, -38.89)],
-                strokeColor: "#0f03",
-                strokeWidth: 1,
-                zIndex: 10,
-            }))
-            car.rays.push(new Line({
-                points: [new Shaper.Vector(5, 0), new Shaper.Vector(5, -55)],
-                strokeColor: "#0f03",
-                strokeWidth: 1,
-                zIndex: 10,
-            }))
-            car.shape.addChildShape(car.rays[0])
-            car.shape.addChildShape(car.rays[1])
-            car.shape.addChildShape(car.rays[2])
-            car.shape.addChildShape(car.rays[3])
-            car.shape.addChildShape(car.rays[4])
+            if (i < this.numberOfDisplayedCars) {
+                car.shape = new Container({zIndex: 50})
+                this.scene.rootShape.addChildShape(car.shape)
+                car.shape.addChildShape(new Circle({
+                    center: new Shaper.Vector(-5, 0),
+                    radius: 5,
+                    fillColor: "black",
+                    zIndex: 20,
+                }))
+                car.front = new Circle({
+                    center: new Shaper.Vector(5, 0),
+                    radius: 5,
+                    fillColor: "green",
+                    zIndex: 20,
+                })
+                car.shape.addChildShape(car.front)
+                car.shape.addChildShape(new Rect({
+                    points: [
+                        new Shaper.Vector(-5, -5),
+                        new Shaper.Vector(5, -5),
+                        new Shaper.Vector(5, 5),
+                        new Shaper.Vector(-5, 5),
+                    ],
+                    fillColor: "black",
+                    zIndex: 20,
+                }))
+                /*car.rays.push(new Line({
+                    points: [new Shaper.Vector(5, 0), new Shaper.Vector(5, 55)],
+                    strokeColor: "#0f03",
+                    strokeWidth: 1,
+                    zIndex: 10,
+                }))
+                car.rays.push(new Line({
+                    points: [new Shaper.Vector(5, 0), new Shaper.Vector(43.89, 38.89)],
+                    strokeColor: "#0f03",
+                    strokeWidth: 1,
+                    zIndex: 10,
+                }))
+                car.rays.push(new Line({
+                    points: [new Shaper.Vector(5, 0), new Shaper.Vector(60, 0)],
+                    strokeColor: "#0f03",
+                    strokeWidth: 1,
+                    zIndex: 10,
+                }))
+                car.rays.push(new Line({
+                    points: [new Shaper.Vector(5, 0), new Shaper.Vector(43.89, -38.89)],
+                    strokeColor: "#0f03",
+                    strokeWidth: 1,
+                    zIndex: 10,
+                }))
+                car.rays.push(new Line({
+                    points: [new Shaper.Vector(5, 0), new Shaper.Vector(5, -55)],
+                    strokeColor: "#0f03",
+                    strokeWidth: 1,
+                    zIndex: 10,
+                }))
+                car.shape.addChildShape(car.rays[0])
+                car.shape.addChildShape(car.rays[1])
+                car.shape.addChildShape(car.rays[2])
+                car.shape.addChildShape(car.rays[3])
+                car.shape.addChildShape(car.rays[4])*/
+            }
 
             car.ann = new ANN()
             car.ann.addLayer(new Layer(5, ANN.ActivationFunctions.Tanh, 6))
@@ -156,6 +161,35 @@ class Simulation {
 
             this.cars.push(car)
         }
+    }
+
+    initGPU() {
+        let cars = []
+        this.cars.forEach(car => cars.push([car.position.x, car.position.y, 0, 0,
+            car.rotation, 0, 1]))
+
+        this.gpuController = new GPUController(
+            document.querySelector("#carsCanvas"),
+            this.trackBorders,
+            cars
+        )
+
+        
+
+        //console.log(localTranslatedBorders.toArray())
+    }
+
+    finishLoop() {
+        this.cars.forEach(car => car.calcScore())
+        this.cars.sort((car1, car2) => car2.score - car1.score)
+
+        this.highscores.push(this.cars[0].score)
+        this.averages.push(this.cars.reduce((score, car) => score + car.score, 0) / this.numberOfCars)
+        this.averagesTops.push(this.cars.slice(0, Math.floor(this.cars.length/3)).reduce((score, car) => score 
+            + car.score, 0) / Math.floor(this.cars.length/3))
+
+        this.drawScoreShart()
+        this.drawAnnChart()
     }
 
     initRendering() {
@@ -188,11 +222,9 @@ class Simulation {
         this.averagesTops.push(this.cars.slice(0, Math.floor(this.cars.length/3)).reduce((score, car) => score 
             + car.score, 0) / Math.floor(this.cars.length/3))
 
-        
-
-
         this.drawScoreShart()
         this.drawAnnChart()
+        
 
 
         for (let i = 0; i < Math.floor(this.cars.length/3); i++) {
@@ -230,7 +262,7 @@ class Simulation {
 
         scoreContext.beginPath()
         scoreContext.moveTo(0, 250)
-        for (let i = 1; i < this.generation; i++) {
+        for (let i = 1; i <= this.generation; i++) {
             scoreContext.lineTo(i/(this.generation-1)*400, (1-this.highscores[i]/maxValue)*250)
         }
         scoreContext.strokeStyle = "#a00"
@@ -239,7 +271,7 @@ class Simulation {
 
         scoreContext.beginPath()
         scoreContext.moveTo(0, 250)
-        for (let i = 1; i < this.generation; i++) {
+        for (let i = 1; i <= this.generation; i++) {
             scoreContext.lineTo(i/(this.generation-1)*400, (1-this.averagesTops[i]/maxValue)*250)
         }
         scoreContext.strokeStyle = "#0a0"
@@ -248,7 +280,7 @@ class Simulation {
 
         scoreContext.beginPath()
         scoreContext.moveTo(0, 250)
-        for (let i = 1; i < this.generation; i++) {
+        for (let i = 1; i <= this.generation; i++) {
             scoreContext.lineTo(i/(this.generation-1)*400, (1-this.averages[i]/maxValue)*250)
         }
         scoreContext.strokeStyle = "#00a"
@@ -352,7 +384,7 @@ class Simulation {
     }
 
     synchronize() {
-        this.cars.forEach(car => {
+        this.cars.slice(0, this.numberOfDisplayedCars).forEach(car => {
             car.shape.position = car.position
             car.shape.rotation = car.rotation
         })

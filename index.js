@@ -94,6 +94,10 @@ function initSimulationMode() {
         game.simulation.start()
         startSimulationButton.style.display = "none"
     })
+    const renderCarsCheckBox = document.getElementById("renderCars")
+    renderCarsCheckBox.addEventListener("input", (e) => {
+        game.simulation.renderCars = e.target.checked
+    })
 
     /*const nextGenerationButton = document.getElementById("nextGeneration")
     nextGenerationButton.addEventListener("click", () => {

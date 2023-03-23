@@ -25,6 +25,7 @@ class Game {
         this.scene.reset()
         if (this.editor) {
             this.simulation = new Simulation(this.editor.getBorders(), this.scene)
+            this.simulation.initGPU()
             this.editor = null
         }
     }

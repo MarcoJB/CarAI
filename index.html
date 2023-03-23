@@ -1,10 +1,29 @@
 <html>
     <head>
         <link rel="stylesheet" href="index.css">
+        <script type="text/javascript" src="libraries/gpu-browser.min.js"></script>
         <script type="module" src="index.js"></script>
     </head>
     <body>
-        <canvas id="trackcanvas" width="1000" height="700"></canvas><br><br>
+        <div id="canvas">
+            <canvas id="trackcanvas" width="1000" height="700"></canvas>
+            <canvas id="carscanvas" width="1000" height="700"></canvas>
+            <svg id="carsSVG" width="1000" height="700">
+                <g class="car">
+                    <!--<g class="rays" transform="translate(5,0)">
+                        <line class="ray" x1="0" y1="0" x2="55" y2="0" stroke="#0f03" transform="rotate(90)" />
+                        <line class="ray" x1="0" y1="0" x2="55" y2="0" stroke="#0f03" transform="rotate(45)" />
+                        <line class="ray" x1="0" y1="0" x2="55" y2="0" stroke="#0f03" />
+                        <line class="ray" x1="0" y1="0" x2="55" y2="0" stroke="#0f03" transform="rotate(-45)" />
+                        <line class="ray" x1="0" y1="0" x2="55" y2="0" stroke="#0f03" transform="rotate(-90)" />
+                    </g>-->
+                    <!--<circle class="front" cx="5" r="5" fill="#a00" />
+                    <circle cx="-5"r="5" fill="black" />
+                    <rect x="-5" y="-5" width="10" height="10" fill="black" />-->
+                    <rect x="-10" y="-5" width="20" height="10" rx="5" ry="5" fill="black" />
+                </g>
+            </svg>
+        </div><br><br>
 
         <button id="activateEditorMode">Activate editor mode</button>
         <button id="activateSimulationMode">Activate simulation mode</button><br><br>
@@ -25,6 +44,7 @@
             <!--Simulation speed: <input type="range" min="0" max="200" value="50" id="trackWidth"><br>-->
             <button id="startSimulation">Start simulation</button>
             <!--<button id="nextGeneration">Next generation</button>-->
+            <input id="renderCars" type="checkbox" checked> Render cars
         </div>
     </body>
 </html>

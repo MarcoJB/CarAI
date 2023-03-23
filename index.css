@@ -1,5 +1,15 @@
-canvas {
-    border: solid 1px;
+#canvas {
+    position: relative;
+}
+
+#trackcanvas {
+    outline: solid 1px;
+}
+
+#carscanvas, #carsSVG {
+    position: absolute;
+    bottom: 0;
+    left: 0;
 }
 
 .controls {
