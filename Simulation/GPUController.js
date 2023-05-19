@@ -740,10 +740,20 @@ class GPUController {
         }
 
 
+        const bestAnnActivations = []
+        const weights = []
+        const biases = []
+
         let ANNResult = this.createANNInput(rayCollisionDistances, this.cars)
+        if (game.simulation.renderCars) bestAnnActivations.push(ANNResult.toArray()[0])
+
         this.calcANNLayers.forEach((calcANNLayer, index) => {
             ANNResult = calcANNLayer(this.weights[index], this.biases[index], ANNResult, this.cars)
+            if (game.simulation.renderCars) bestAnnActivations.push(ANNResult.toArray()[0])
+            weights.push(this.weights[0][index])
+            biases.push(this.weights[0][index])
         })
+        if (game.simulation.renderCars) game.simulation.drawAnnChart(weights, biases, bestAnnActivations)
 
         this.cars = this.performStep(this.cars, ANNResult)
     }

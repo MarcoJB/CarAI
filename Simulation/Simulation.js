@@ -11,8 +11,8 @@ import { GPUController } from "./GPUController.js"
 
 class Simulation {
     constructor(trackBorders, scene=null) {
-        this.numberOfCars = 2700
-        this.numberOfDisplayedCars = 900
+        this.numberOfCars = 198
+        this.numberOfDisplayedCars = 198
         this.renderCars = true
         this.cars = []
 
@@ -288,11 +288,11 @@ class Simulation {
         scoreContext.closePath()
     }
 
-    drawAnnChart() {
+    drawAnnChart(weights, biases, bestAnnActivations) {
         const annContext = document.querySelector("#anncanvas").getContext("2d")
         annContext.clearRect(0, 0, 400, 250)
 
-        const bestAnn = this.cars[0].ann
+        /*const bestAnn = this.cars[0].ann
         let bestAnnActivations = null
         if (this.cars[0].distanceToTrackBorders !== false) {
             bestAnnActivations = this.cars[0].getBrainDecisions()
@@ -304,21 +304,27 @@ class Simulation {
         const maxNeuronsPerLayer = Math.max(
             bestAnn.layers[0].neurons[0].inputSize,
             ...bestAnn.layers.map(layer => layer.neurons.length)
-            )
-        weights.forEach((layer, layerIndex) => {
+            )*/
+        
+        const neuronPositions = []
+        const maxNeuronsPerLayer = 6
+
+
+        bestAnnActivations.forEach((layer, layerIndex) => {
             neuronPositions[layerIndex] = []
             layer.forEach((neuron, neuronIndex) => {
                 neuronPositions[layerIndex][neuronIndex] = new Shaper.Vector(
-                    (layerIndex + 0.5) / weights.length * 400,
+                    (layerIndex + 0.5) / bestAnnActivations.length * 400,
                     (neuronIndex + 0.5 + (maxNeuronsPerLayer - layer.length) / 2) 
                         / maxNeuronsPerLayer * 250,
                 )
             })
         })
+
         neuronPositions.forEach((neuronPositionsLayer, layerIndex) => {
             neuronPositionsLayer.forEach((neuronPosition, neuronIndex) => {
                 neuronPositions[layerIndex + 1]?.forEach((nextNeuronPosition, nextNeuronIndex) => {
-                    const weight = weights[layerIndex+1][nextNeuronIndex][neuronIndex]
+                    const weight = weights[layerIndex][nextNeuronIndex][neuronIndex]
 
                     annContext.beginPath()
                     annContext.moveTo(neuronPosition.x, neuronPosition.y)
